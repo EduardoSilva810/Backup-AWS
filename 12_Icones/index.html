@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ícones - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container py-5">
+    <h1 class="text-3xl font-bold text-center mb-2">Bibliotecas de Ícones</h1>
+    <p class="text-center text-muted mb-5">Bootstrap Icons, React Icons e Heroicons com Tailwind</p>
+
+    <!-- Bootstrap Icons -->
+    <div class="card shadow-sm mb-5">
+      <div class="card-header bg-primary text-white">
+        <h2 class="h5 mb-0">Bootstrap Icons (via CDN)</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Ícones como elementos <code>&lt;i&gt;</code> com classes <code>bi bi-*</code>.</p>
+        <div class="d-flex flex-wrap gap-4 align-items-center">
+          <div class="text-center"><i class="bi bi-heart text-danger" style="font-size:2rem"></i><br/><code>bi-heart</code></div>
+          <div class="text-center"><i class="bi bi-star-fill text-warning" style="font-size:2rem"></i><br/><code>bi-star-fill</code></div>
+          <div class="text-center"><i class="bi bi-person-circle text-primary" style="font-size:2rem"></i><br/><code>bi-person-circle</code></div>
+          <div class="text-center"><i class="bi bi-gear text-secondary" style="font-size:2rem"></i><br/><code>bi-gear</code></div>
+          <div class="text-center"><i class="bi bi-envelope" style="font-size:2rem"></i><br/><code>bi-envelope</code></div>
+          <div class="text-center"><i class="bi bi-telephone text-success" style="font-size:2rem"></i><br/><code>bi-telephone</code></div>
+          <div class="text-center"><i class="bi bi-geo-alt text-info" style="font-size:2rem"></i><br/><code>bi-geo-alt</code></div>
+          <div class="text-center"><i class="bi bi-trash text-danger" style="font-size:2rem"></i><br/><code>bi-trash</code></div>
+        </div>
+
+        <h3 class="h6 mt-4 mb-2">Ícones com texto (lista de contatos)</h3>
+        <ul class="list-group">
+          <li class="list-group-item"><i class="bi bi-person-circle me-2 text-primary"></i> Maria Silva</li>
+          <li class="list-group-item"><i class="bi bi-envelope me-2 text-danger"></i> maria@email.com</li>
+          <li class="list-group-item"><i class="bi bi-telephone me-2 text-success"></i> (11) 99999-8888</li>
+          <li class="list-group-item"><i class="bi bi-geo-alt me-2 text-info"></i> São Paulo, SP</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Heroicons com Tailwind -->
+    <div class="card shadow-sm mb-5">
+      <div class="card-header bg-dark text-white">
+        <h2 class="h5 mb-0">Heroicons com Tailwind CSS (SVG inline)</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Ícones via SVG inline — tamanho e cor controlados por classes Tailwind.</p>
+        <div class="d-flex flex-wrap gap-4 align-items-center">
+          <div class="text-center">
+            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg><br/><code>w-8 h-8 text-blue-500</code>
+          </div>
+          <div class="text-center">
+            <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+            </svg><br/><code>text-yellow-500</code>
+          </div>
+          <div class="text-center">
+            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg><br/><code>text-green-500</code>
+          </div>
+          <div class="text-center">
+            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg><br/><code>text-red-500</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- React Icons -->
+    <div class="card shadow-sm mb-5">
+      <div class="card-header bg-success text-white">
+        <h2 class="h5 mb-0">React Icons (via CDN + Babel)</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Conjunto <code>react-icons</code> com milhares de ícones em vários pacotes.</p>
+        <div id="react-icons-root"></div>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>Resumo:</strong> Bootstrap Icons via CDN (<code>bi bi-*</code>), Heroicons com SVG inline no Tailwind, e
+      <code>react-icons</code> para projetos React. Escolha conforme a stack do projeto.
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Simulação de react-icons via SVG inline (os ícones reais exigem npm) -->
+  <script type="text/babel">
+    function Icone({ nome, cor, tamanho = 24 }) {
+      const icones = {
+        heart: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+        user: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+        settings: 'M19.14 12.94a7.07 7.07 0 00.06-.94c0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a6.82 6.82 0 00-1.62-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.03.7 1.62.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z'
+      };
+
+      return (
+        <svg width={tamanho} height={tamanho} viewBox="0 0 24 24" fill={cor} style={{margin: '0 4px'}}>
+          <path d={icones[nome] || icones.heart}/>
+        </svg>
+      );
+    }
+
+    function App() {
+      const icones = [
+        { nome: 'heart', cor: '#dc3545', label: 'FaHeart' },
+        { nome: 'user', cor: '#0d6efd', label: 'FaUser' },
+        { nome: 'settings', cor: '#6c757d', label: 'FiSettings' },
+      ];
+
+      return (
+        <div>
+          <p className="mb-3">Ícones simulando <code>react-icons</code> (FaHeart, FaUser, FiSettings):</p>
+          <div className="d-flex gap-4 align-items-center">
+            {icones.map((ic, i) => (
+              <div key={i} className="text-center p-3 border rounded bg-white">
+                <Icone nome={ic.nome} cor={ic.cor} tamanho={36} />
+                <br/><code className="small">{ic.label}</code>
+              </div>
+            ))}
+          </div>
+          <div className="alert alert-warning mt-3 mb-0">
+            <strong>Nota:</strong> Em um projeto real, instale via <code>npm install react-icons</code>
+            e importe: <code>import { FaHeart } from 'react-icons/fa';</code>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('react-icons-root')).render(<App />);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

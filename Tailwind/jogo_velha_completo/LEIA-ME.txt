@@ -1,0 +1,8 @@
+JOGO DA VELHA COMPLETO
+
+Abra index.html e escolha:
+1. Contra o computador: níveis Fácil, Médio e Difícil.
+2. Multiplayer local: Jogador X contra Jogador O no mesmo dispositivo.
+
+Cada modo possui placar próprio persistido em localStorage.
+O Tailwind CSS é carregado por CDN e requer internet para a estilização.

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jogo da Velha Completo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>.cell{aspect-ratio:1/1;transition:.15s}.cell:hover:not(:disabled){transform:scale(1.03);background:#475569}.win{background:#16a34a!important;color:#fff}.x{color:#60a5fa}.o{color:#fb7185}</style>
+</head>
+<body class="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4">
+<main class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6">
+<header class="text-center"><p class="text-blue-400 text-xs font-bold tracking-widest">TAILWIND + JAVASCRIPT</p><h1 class="text-4xl font-black mt-2">Jogo da Velha</h1><p id="modeDescription" class="text-slate-400 mt-2"></p></header>
+
+<div class="mt-6"><label class="block text-sm font-bold mb-2" for="mode">Modo de jogo</label><select id="mode" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3"><option value="ai">Contra o computador</option><option value="local">Multiplayer local</option></select></div>
+<div id="difficultyBox" class="mt-4"><label class="block text-sm font-bold mb-2" for="difficulty">Nível da IA</label><select id="difficulty" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3"><option value="easy">Fácil</option><option value="medium">Médio</option><option value="hard" selected>Difícil</option></select></div>
+
+<div class="grid grid-cols-3 gap-3 my-6 text-center"><div class="bg-slate-800 rounded-xl p-3"><p id="leftLabel" class="text-xs text-slate-400">Você</p><strong id="leftScore" class="text-2xl text-blue-400">0</strong></div><div class="bg-slate-800 rounded-xl p-3"><p class="text-xs text-slate-400">Empates</p><strong id="drawScore" class="text-2xl">0</strong></div><div class="bg-slate-800 rounded-xl p-3"><p id="rightLabel" class="text-xs text-slate-400">Computador</p><strong id="rightScore" class="text-2xl text-rose-400">0</strong></div></div>
+<p id="status" class="text-center text-lg font-bold mb-4" aria-live="polite">Sua vez</p><div id="board" class="grid grid-cols-3 gap-2"></div>
+<div class="grid grid-cols-2 gap-3 mt-6"><button id="newGame" class="bg-blue-600 hover:bg-blue-700 font-bold py-3 rounded-lg">Novo jogo</button><button id="resetScore" class="bg-slate-700 hover:bg-slate-600 font-bold py-3 rounded-lg">Zerar placar</button></div>
+<p class="text-center text-xs text-slate-500 mt-5">No modo local, dois jogadores alternam no mesmo dispositivo.</p>
+</main>
+<script>
+const X='X',O='O',wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];let board=[],turn=X,over=false,thinking=false;const $=id=>document.getElementById(id);const mode=()=>$('mode').value;const scoreKey=()=>`jv_score_${mode()}`;let score={left:0,right:0,draw:0};
+function loadScore(){try{score=JSON.parse(localStorage.getItem(scoreKey()))||{left:0,right:0,draw:0}}catch{score={left:0,right:0,draw:0}}}
+function saveScore(){localStorage.setItem(scoreKey(),JSON.stringify(score))}
+function result(state){for(const line of wins){const[a,b,c]=line;if(state[a]&&state[a]===state[b]&&state[a]===state[c])return{winner:state[a],line}}return{winner:state.every(Boolean)?'draw':null,line:[]}}
+function labels(){const ai=mode()==='ai';$('difficultyBox').classList.toggle('hidden',!ai);$('leftLabel').textContent=ai?'Você (X)':'Jogador X';$('rightLabel').textContent=ai?'Computador (O)':'Jogador O';$('modeDescription').textContent=ai?'Jogue contra a inteligência artificial.':'Dois jogadores no mesmo dispositivo.'}
+function statusText(){if(over||thinking)return;if(mode()==='ai')$('status').textContent='Sua vez';else $('status').textContent=`Vez do Jogador ${turn}`}
+function render(){labels();const r=result(board);$('board').innerHTML='';board.forEach((v,i)=>{const b=document.createElement('button');b.className=`cell bg-slate-800 rounded-xl text-5xl font-black ${v==='X'?'x':v==='O'?'o':''}`;if(r.line.includes(i))b.classList.add('win');b.textContent=v;b.disabled=!!v||over||thinking;b.onclick=()=>play(i);$('board').appendChild(b)});$('leftScore').textContent=score.left;$('rightScore').textContent=score.right;$('drawScore').textContent=score.draw}
+function finish(){const r=result(board);if(!r.winner)return false;over=true;if(r.winner==='draw'){score.draw++;$('status').textContent='Empate!'}else if(r.winner===X){score.left++;$('status').textContent=mode()==='ai'?'Você venceu!':'Jogador X venceu!'}else{score.right++;$('status').textContent=mode()==='ai'?'O computador venceu!':'Jogador O venceu!'}saveScore();render();return true}
+function play(i){if(board[i]||over||thinking)return;board[i]=turn;if(finish())return;if(mode()==='local'){turn=turn===X?O:X;statusText();render();return}thinking=true;$('status').textContent='Computador pensando...';render();setTimeout(()=>{const i=aiMove();if(i!==undefined)board[i]=O;thinking=false;if(!finish()){turn=X;statusText();render()}},300)}
+function aiMove(){const free=board.map((v,i)=>v?'':i).filter(v=>v!=='');const level=$('difficulty').value;if(level==='easy'||(level==='medium'&&Math.random()<.45))return free[Math.floor(Math.random()*free.length)];let best=-Infinity,move;for(const i of free){board[i]=O;const v=minimax(false,0);board[i]='';if(v>best){best=v;move=i}}return move}
+function minimax(max,depth){const r=result(board).winner;if(r===O)return 10-depth;if(r===X)return depth-10;if(r==='draw')return 0;const free=board.map((v,i)=>v?'':i).filter(v=>v!=='');let best=max?-Infinity:Infinity;for(const i of free){board[i]=max?O:X;const v=minimax(!max,depth+1);board[i]='';best=max?Math.max(best,v):Math.min(best,v)}return best}
+function newGame(){board=Array(9).fill('');turn=X;over=false;thinking=false;statusText();render()}
+$('mode').onchange=()=>{loadScore();newGame()};$('difficulty').onchange=newGame;$('newGame').onclick=newGame;$('resetScore').onclick=()=>{score={left:0,right:0,draw:0};saveScore();newGame()};loadScore();newGame();
+</script></body></html>

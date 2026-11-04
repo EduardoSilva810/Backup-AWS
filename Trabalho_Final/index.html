@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7fc">
+  <meta name="description" content="Organize suas missões de estudo com Nocturna, seu grimório de tarefas.">
+  <title>Nocturna — Grimório de Estudos</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="halloween-theme">
+  <div class="ambient ambient-one" aria-hidden="true">✦</div>
+  <div class="ambient ambient-two" aria-hidden="true">✧</div>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#inicio" aria-label="Nocturna - início">
+        <span class="brand-icon">🎃</span><span>Nocturna<span class="brand-season"> GRIMÓRIO DE ESTUDOS</span></span>
+      </a>
+      <p class="menu-label">NAVEGAR</p>
+      <nav class="nav-menu">
+        <button class="nav-link active" data-page="inicio"><span>⌂</span> Início</button>
+        <button class="nav-link" data-page="tarefas"><span>☑</span> Minhas tarefas</button>
+        <button class="nav-link" data-page="disciplinas"><span>▤</span> Disciplinas</button>
+        <button class="nav-link" data-page="calendario"><span>▦</span> Calendário</button>
+        <button class="nav-link" data-page="progresso"><span>▥</span> Meu progresso</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="tip-icon">🕯️</div>
+        <h3>Nem os fantasmas procrastinam!</h3>
+        <p>Complete suas missões uma por uma e domine a noite de estudos.</p>
+        <small>Nocturna · Edição Halloween</small>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="mobile-header">
+        <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+        <span class="brand-icon">🌙</span><strong>Nocturna</strong>
+      </header>
+
+      <section class="page active" id="page-inicio">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow"><span class="eyebrow-star">✦</span> OLÁ, ESTUDANTE DA NOITE <span class="eyebrow-star">✦</span></p>
+            <h1>Seu covil de estudos<span class="title-pumpkin"> 🎃</span></h1>
+            <p class="subtitle">Organize suas missões antes que a meia-noite chegue.</p>
+          </div>
+          <div class="profile-pill"><span class="avatar">♟</span><span><b>Estudante</b><small>Minha área de estudos</small></span></div>
+        </div>
+
+        <section class="night-banner">
+          <div class="night-banner-copy"><span class="banner-kicker">HALLOWEEN STUDY CLUB</span><h2>Uma noite. Novas conquistas.</h2><p>Organize suas missões, acompanhe seus prazos e vença a procrastinação.</p><button class="banner-button" id="bannerNewTask">＋ Criar missão</button></div>
+          <div class="night-banner-art" aria-hidden="true"><span class="moon">☾</span><span class="banner-pumpkin">🎃</span><span class="banner-bat">🦇</span></div>
+        </section>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>Tarefas cadastradas</span><span class="stat-icon pink">📚</span></div><strong id="totalTasks">0</strong><small>Total de atividades</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Concluídas</span><span class="stat-icon green">✓</span></div><strong id="completedTasks">0</strong><small>Tarefas finalizadas</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Pendentes</span><span class="stat-icon orange">⌛</span></div><strong id="pendingTasks">0</strong><small>Atividades para fazer</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Progresso</span><span class="stat-icon purple">▥</span></div><strong id="progressNumber">0%</strong><small>Do planejamento concluído</small></article>
+        </div>
+
+        <div class="section-heading">
+          <div><h2>Minhas tarefas</h2><p class="subtitle">Organize o que você precisa estudar.</p></div>
+          <button class="primary-btn" id="focusNewTask">＋ Nova tarefa</button>
+        </div>
+        <section class="panel form-panel" id="taskFormPanel">
+          <div class="form-title-row"><span class="form-title-icon">🕸️</span><div><h3>Preparar uma nova missão</h3><p>Registre o que precisa fazer antes que a noite acabe.</p></div></div>
+          <form id="taskForm">
+            <div class="form-grid">
+              <label class="field task-name-field">Nome da tarefa
+                <input id="taskName" name="taskName" required maxlength="100" placeholder="Ex.: Estudar para a prova de Matemática">
+              </label>
+              <label class="field task-description-field">Descrição
+                <textarea id="taskDescription" name="taskDescription" maxlength="500" rows="3" placeholder="Anote o que precisa estudar, materiais ou etapas da atividade..."></textarea>
+              </label>
+              <label class="field">Disciplina
+                <select id="taskSubject" name="taskSubject" required>
+                  <option value="">Selecione</option>
+                  <option>Matemática</option><option>Português</option><option>Programação</option><option>História</option><option>Outras</option>
+                </select>
+              </label>
+              <label class="field">Prazo
+                <input id="taskDate" name="taskDate" type="date">
+              </label>
+            </div>
+            <div class="form-actions"><button class="primary-btn" type="submit">Cadastrar tarefa</button><span id="formMessage" role="status"></span></div>
+          </form>
+        </section>
+
+        <section class="panel task-panel">
+          <div class="panel-heading"><h3>🦇 Seu roteiro de missões</h3><select id="taskFilter" aria-label="Filtrar tarefas"><option value="all">Todas as tarefas</option><option value="pending">Pendentes</option><option value="completed">Concluídas</option></select></div>
+          <div id="taskList" class="task-list"></div>
+          <p id="emptyTasks" class="empty-state">Nenhuma tarefa cadastrada ainda. Adicione sua primeira atividade acima.</p>
+        </section>
+
+        <div class="dashboard-grid">
+          <section class="panel"><div class="panel-heading"><h3>Grimório de disciplinas</h3><span class="panel-emoji">📚</span></div><div id="subjectSummary" class="subject-list"></div></section>
+          <section class="panel progress-panel"><div class="panel-heading"><h3>Seu progresso sombrio</h3><span class="panel-emoji">📊</span></div><p class="subtitle">Acompanhe a conclusão das suas tarefas.</p><div class="progress-label"><span>Atividades concluídas</span><b id="progressLabel">0%</b></div><div class="progress-track"><div id="progressBar" class="progress-fill"></div></div><div class="encouragement" id="encouragement">🦇 Comece cadastrando uma missão. Você consegue!</div></section>
+        </div>
+      </section>
+
+      <section class="page" id="page-tarefas">
+        <div class="page-heading"><p class="eyebrow">SUA ROTINA</p><h1>Minhas tarefas</h1><p class="subtitle">Cadastre e acompanhe tudo o que precisa estudar.</p></div>
+        <div class="panel"><h3>Adicionar uma tarefa</h3><p class="subtitle">Use o formulário na página inicial para cadastrar uma nova atividade.</p><button class="primary-btn" data-go="inicio" id="goCreateTask">Ir para cadastro</button></div>
+        <div class="panel"><div class="panel-heading"><h3>Todas as atividades</h3><select id="taskFilter2" aria-label="Filtrar tarefas"><option value="all">Todas as tarefas</option><option value="pending">Pendentes</option><option value="completed">Concluídas</option></select></div><div id="taskList2" class="task-list"></div><p id="emptyTasks2" class="empty-state">Nenhuma tarefa cadastrada.</p></div>
+      </section>
+
+      <section class="page" id="page-disciplinas">
+        <div class="page-heading"><p class="eyebrow">ORGANIZE POR MATÉRIA</p><h1>Minhas disciplinas</h1><p class="subtitle">Veja quantas atividades você tem em cada disciplina.</p></div>
+        <div id="subjectCards" class="subject-cards"></div>
+      </section>
+
+      <section class="page" id="page-calendario">
+        <div class="page-heading"><p class="eyebrow">FIQUE EM DIA</p><h1>Calendário de prazos</h1><p class="subtitle">Consulte as datas das suas atividades.</p></div>
+        <div class="panel calendar-panel"><div class="calendar-toolbar"><button class="icon-btn" id="prevMonth" aria-label="Mês anterior">‹</button><h2 id="calendarTitle"></h2><button class="icon-btn" id="nextMonth" aria-label="Próximo mês">›</button></div><div class="calendar-grid" id="calendarGrid"></div><div class="calendar-details"><h3>Atividades com prazo</h3><div id="calendarTasks"></div></div></div>
+      </section>
+
+      <section class="page" id="page-progresso">
+        <div class="page-heading"><p class="eyebrow">SEU DESEMPENHO</p><h1>Meu progresso</h1><p class="subtitle">Acompanhe sua evolução e mantenha a constância.</p></div>
+        <div class="panel big-progress"><div class="big-progress-number" id="bigProgressNumber">0%</div><h2>do planejamento concluído</h2><p class="subtitle" id="bigProgressText">Você ainda não cadastrou tarefas.</p><div class="progress-track"><div id="bigProgressBar" class="progress-fill"></div></div></div>
+        <div class="stats-grid progress-stats"><article class="stat-card"><div class="stat-top">Total de tarefas <span class="stat-icon pink">📚</span></div><strong id="progressTotal">0</strong></article><article class="stat-card"><div class="stat-top">Concluídas <span class="stat-icon green">✓</span></div><strong id="progressCompleted">0</strong></article><article class="stat-card"><div class="stat-top">Pendentes <span class="stat-icon orange">⌛</span></div><strong id="progressPending">0</strong></article></div>
+        <div class="panel"><h3>Progresso por disciplina</h3><div id="subjectProgress"></div></div>
+      </section>
+
+      <footer><span>🌙 Nocturna © <span id="year"></span></span><span>Estude com coragem. A noite é sua.</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

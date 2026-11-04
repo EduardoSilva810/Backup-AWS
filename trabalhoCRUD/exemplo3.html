@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Estoque - Tailwind Corrigido</title>
+    
+    <!-- Script Oficial do Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    
+    <!-- Configuração do Tailwind para garantir compatibilidade de cores -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#0f172a] text-slate-100 min-h-screen p-4 md:p-8 font-sans">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <!-- CABEÇALHO -->
+        <header class="bg-[#1e293b] p-6 rounded-xl border border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-black text-cyan-400">📦 StockFlow Local</h1>
+                <p class="text-xs text-slate-400">CRUD em memória com Tailwind CSS</p>
+            </div>
+            <!-- MÉTRIQUEIS -->
+            <div class="flex gap-4">
+                <div class="bg-slate-900 p-3 rounded-lg text-center min-w-[100px]">
+                    <span class="block text-[10px] text-slate-400 uppercase">Qtd Total</span>
+                    <span id="totalQty" class="text-lg font-bold text-indigo-400">0</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg text-center min-w-[120px]">
+                    <span class="block text-[10px] text-slate-400 uppercase">Valor Total</span>
+                    <span id="totalValue" class="text-lg font-bold text-emerald-400">R\$ 0,00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- LAYOUT DUAS COLUNAS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- FORMULÁRIO -->
+            <div class="bg-[#1e293b] p-6 rounded-xl border border-slate-700 h-fit">
+                <h2 id="formTitle" class="text-base font-bold text-slate-200 mb-4 border-b border-slate-700 pb-2">➕ Cadastrar Produto</h2>
+                
+                <form id="productForm" class="space-y-4">
+                    <input type="hidden" id="productId">
+                    
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Nome</label>
+                        <input type="text" id="prodName" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Quantidade</label>
+                            <input type="number" id="prodQty" required min="0" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Preço (R\$)</label>
+                            <input type="number" id="prodPrice" required min="0" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button type="button" id="cancelBtn" class="hidden flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded text-sm transition">Cancelar</button>
+                        <button type="submit" id="submitBtn" class="flex-1 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-2 rounded text-sm transition">Adicionar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- LISTAGEM -->
+            <div class="lg:col-span-2 space-y-4">
+                <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Os cards vão aparecer aqui -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DO CRUD -->
+    <script>
+        // Dados iniciais
+        let products = [
+            { id: 1, name: "Teclado Mecânico", qty: 4, price: 299.90 },
+            { id: 2, name: "Mouse Gamer", qty: 10, price: 150.00 }
+        ];
+
+        // Elementos
+        const productForm = document.getElementById('productForm');
+        const productIdInput = document.getElementById('productId');
+        const prodNameInput = document.getElementById('prodName');
+        const prodQtyInput = document.getElementById('prodQty');
+        const prodPriceInput = document.getElementById('prodPrice');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const formTitle = document.getElementById('formTitle');
+        const productGrid = document.getElementById('productGrid');
+        const totalQtyEl = document.getElementById('totalQty');
+        const totalValueEl = document.getElementById('totalValue');
+
+        // Renderizar a tela
+        function updateUI() {
+            productGrid.innerHTML = '';
+            
+            // Cálculos dos totais
+            let totalQty = 0;
+            let totalValue = 0;
+
+            if (products.length === 0) {
+                productGrid.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-[#1e293b] rounded-xl border border-slate-700">Nenhum produto em estoque.</div>`;
+            }
+
+            products.forEach(p => {
+                totalQty += Number(p.qty);
+                totalValue += (Number(p.qty) * Number(p.price));
+
+                const card = document.createElement('div');
+                card.className = "bg-[#1e293b] p-4 rounded-xl border border-slate-700 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-200 text-base">${p.name}</h3>
+                            <span class="text-xs px-2 py-0.5 rounded ${p.qty == 0 ? 'bg-red-500/20 text-red-400' : 'bg-cyan-500/20 text-cyan-400'}">
+                                ${p.qty} un
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400">Unitário: R$ ${Number(p.price).toFixed(2)}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700 flex justify-between items-center">
+                        <div>
+                            <span class="block text-[10px] text-slate-500 uppercase">Subtotal</span>
+                            <span class="text-sm font-bold text-slate-200">R$ ${(p.qty * p.price).toFixed(2)}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editProduct(${p.id})" class="text-xs text-amber-400 hover:underline">Editar</button>
+                            <button onclick="deleteProduct(${p.id})" class="text-xs text-red-400 hover:underline">Excluir</button>
+                        </div>
+                    </div>
+                `;
+                productGrid.appendChild(card);
+            });
+
+            totalQtyEl.innerText = totalQty;
+            totalValueEl.innerText = totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Criar ou Atualizar
+        productForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = productIdInput.value;
+            const name = prodNameInput.value;
+            const qty = parseInt(prodQtyInput.value);
+            const price = parseFloat(prodPriceInput.value);
+
+            if (id) {
+                // Modo Edição (Update)
+                products = products.map(p => p.id == id ? { id: Number(id), name, qty, price } : p);
+                resetForm();
+            } else {
+                // Modo Criação (Create)
+                products.push({ id: Date.now(), name, qty, price });
+            }
+
+            productForm.reset();
+            updateUI();
+        });
+
+        // Selecionar para Edição
+        window.editProduct = function(id) {
+            const p = products.find(prod => prod.id === id);
+            if (p) {
+                productIdInput.value = p.id;
+                prodNameInput.value = p.name;
+                prodQtyInput.value = p.qty;
+                prodPriceInput.value = p.price;
+
+                formTitle.innerText = "🛠️ Editar Produto";
+                submitBtn.innerText = "Salvar";
+                submitBtn.className = "flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded text-sm transition";
+                cancelBtn.classList.remove('hidden');
+            }
+        }
+
+        // Deletar
+        window.deleteProduct = function(id) {
+            if(confirm("Deseja mesmo excluir?")) {
+                products = products.filter(p => p.id !== id);
+                if(productIdInput.value == id) resetForm();
+                updateUI();
+            }
+        }
+
+        cancelBtn.addEventListener('click', resetForm);
+
+        function resetForm() {
+            productForm.reset();
+            productIdInput.value = '';
+            formTitle.innerText = "➕ Cadastrar Produto";
+            submitBtn.innerText = "Adicionar";
+            submitBtn.className = "flex-1 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-2 rounded text-sm transition";
+            cancelBtn.classList.add('hidden');
+        }
+
+        // Inicializar
+        updateUI();
+    </script>
+</body>
+</html>

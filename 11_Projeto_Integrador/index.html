@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projeto Integrador - Lista de Tarefas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container py-5">
+    <h1 class="text-3xl font-bold text-center mb-2">Lista de Tarefas</h1>
+    <p class="text-center text-muted mb-4">Projeto Integrador — React + Bootstrap + localStorage</p>
+    <div id="root"></div>
+  </div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function App() {
+      const [tarefas, setTarefas] = useState(() => {
+        const salvas = localStorage.getItem('tarefas');
+        return salvas ? JSON.parse(salvas) : [];
+      });
+      const [texto, setTexto] = useState('');
+      const [filtro, setFiltro] = useState('todas');
+
+      useEffect(() => {
+        localStorage.setItem('tarefas', JSON.stringify(tarefas));
+      }, [tarefas]);
+
+      function adicionar(e) {
+        e.preventDefault();
+        if (!texto.trim()) return;
+        setTarefas([...tarefas, { id: Date.now(), texto: texto.trim(), concluida: false }]);
+        setTexto('');
+      }
+
+      function remover(id) {
+        setTarefas(tarefas.filter(t => t.id !== id));
+      }
+
+      function toggleConcluida(id) {
+        setTarefas(tarefas.map(t => t.id === id ? { ...t, concluida: !t.concluida } : t));
+      }
+
+      const tarefasFiltradas = tarefas.filter(t => {
+        if (filtro === 'ativas') return !t.concluida;
+        if (filtro === 'concluidas') return t.concluida;
+        return true;
+      });
+
+      const pendentes = tarefas.filter(t => !t.concluida).length;
+
+      return (
+        <div className="row justify-content-center">
+          <div className="col-12 col-md-8 col-lg-6">
+            <div className="card shadow-lg">
+              <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h2 className="h5 mb-0">Minhas Tarefas</h2>
+                <span className="badge bg-light text-primary fs-6">{pendentes} pendente(s)</span>
+              </div>
+
+              <div className="card-body">
+                <form onSubmit={adicionar} className="mb-4">
+                  <div className="input-group">
+                    <input className="form-control" placeholder="Nova tarefa..."
+                      value={texto} onChange={e => setTexto(e.target.value)} />
+                    <button className="btn btn-primary" type="submit">Adicionar</button>
+                  </div>
+                </form>
+
+                <div className="btn-group w-100 mb-4" role="group">
+                  {['todas', 'ativas', 'concluidas'].map(f => (
+                    <button key={f}
+                      className={`btn ${filtro === f ? 'btn-primary' : 'btn-outline-primary'}`}
+                      onClick={() => setFiltro(f)}>
+                      {f === 'todas' ? 'Todas' : f === 'ativas' ? 'Ativas' : 'Concluídas'}
+                    </button>
+                  ))}
+                </div>
+
+                {tarefasFiltradas.length === 0 ? (
+                  <div className="alert alert-info text-center">
+                    {filtro === 'todas' ? 'Nenhuma tarefa cadastrada.' :
+                     filtro === 'ativas' ? 'Nenhuma tarefa ativa.' :
+                     'Nenhuma tarefa concluída.'}
+                  </div>
+                ) : (
+                  <ul className="list-group">
+                    {tarefasFiltradas.map(t => (
+                      <li key={t.id}
+                        className={`list-group-item d-flex justify-content-between align-items-center ${t.concluida ? 'list-group-item-success' : ''}`}>
+                        <div className="d-flex align-items-center gap-3">
+                          <input className="form-check-input m-0" type="checkbox"
+                            checked={t.concluida} onChange={() => toggleConcluida(t.id)}
+                            style={{ width: 20, height: 20, cursor: 'pointer' }} />
+                          <span className={t.concluida ? 'text-decoration-line-through text-muted' : ''}>
+                            {t.texto}
+                          </span>
+                        </div>
+                        <button className="btn btn-outline-danger btn-sm" onClick={() => remover(t.id)}>
+                          Remover
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

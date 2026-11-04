@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CI/CD - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container py-5">
+    <h1 class="text-center mb-2">CI/CD — Integração e Entrega Contínua</h1>
+    <p class="text-center text-muted mb-4">
+      Automatização de testes, build e deploy com GitHub Actions
+    </p>
+
+    <div class="row g-4">
+      <!-- O que é CI/CD -->
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">O que é CI/CD?</h2>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="p-3 border rounded bg-light h-100">
+                  <h5 class="text-primary">CI — Integração Contínua</h5>
+                  <p class="mb-0">Automatiza a execução de testes e verificação de qualidade a cada <code>push</code> ou <code>pull request</code>. Garante que o código novo não quebre o projeto.</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 border rounded bg-light h-100">
+                  <h5 class="text-success">CD — Entrega Contínua</h5>
+                  <p class="mb-0">Automatiza o deploy da aplicação para produção após a aprovação dos testes. Entrega rápida e confiável de novas versões.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline YAML -->
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-warning text-dark">
+            <h2 class="h5 mb-0">Pipeline Completo (.github/workflows/deploy.yml)</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded"><code>name: CI/CD - Deploy
+
+on:
+  push:
+    branches: [main]        # Dispara ao fazer push na main
+  pull_request:
+    branches: [main]        # Dispara ao abrir PR para main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci             # Instala versões exatas (package-lock.json)
+
+      - name: Executar testes
+        run: npm test           # Falha se testes não passarem
+
+      - name: Build de produção
+        run: npm run build      # Gera pasta dist/
+
+      - name: Deploy no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explicação passo a passo -->
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-info text-white">
+            <h2 class="h5 mb-0">Explicação do Pipeline</h2>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped mb-0">
+              <thead><tr><th>Passo</th><th>Descrição</th></tr></thead>
+              <tbody>
+                <tr><td><code>on: push</code></td><td>Define quando o pipeline é acionado (push na main ou PR)</td></tr>
+                <tr><td><code>runs-on: ubuntu-latest</code></td><td>Ambiente Ubuntu mais recente para executar os passos</td></tr>
+                <tr><td><code>actions/checkout@v4</code></td><td>Faz o checkout do código do repositório</td></tr>
+                <tr><td><code>actions/setup-node@v4</code></td><td>Instala a versão especificada do Node.js (20)</td></tr>
+                <tr><td><code>npm ci</code></td><td>Instala dependências exatas (mais rápido e confiável que <code>npm install</code>)</td></tr>
+                <tr><td><code>npm test</code></td><td>Executa a suite de testes — se falhar, o pipeline para</td></tr>
+                <tr><td><code>npm run build</code></td><td>Gera o build de produção na pasta <code>dist/</code></td></tr>
+                <tr><td><code>peaceiris/actions-gh-pages</code></td><td>Faz o deploy da pasta <code>dist/</code> para o GitHub Pages</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estrutura necessária no projeto -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-secondary text-white">
+            <h2 class="h5 mb-0">Estrutura Mínima para CI/CD</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded small"><code>meu-projeto/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml      # Pipeline CI/CD
+├── src/
+├── public/
+├── package.json            # Com scripts "test" e "build"
+├── vite.config.js          # Configuração do build
+└── .gitignore</code></pre>
+            <p class="mt-3 mb-0">Requisitos no <code>package.json</code>:</p>
+            <pre class="bg-dark text-light p-3 rounded small"><code class="cmd">npm install --save-dev jest @testing-library/react
+npm install --save-dev vite @vitejs/plugin-react</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plataformas de CI/CD -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-danger text-white">
+            <h2 class="h5 mb-0">Plataformas de CI/CD</h2>
+          </div>
+          <div class="card-body">
+            <table class="table table-sm mb-0">
+              <thead><tr><th>Plataforma</th><th>Características</th></tr></thead>
+              <tbody>
+                <tr><td><strong>GitHub Actions</strong></td><td>Integrado ao GitHub, gratuito para repositórios públicos</td></tr>
+                <tr><td><strong>GitLab CI</strong></td><td>Integrado ao GitLab, runners próprios ou compartilhados</td></tr>
+                <tr><td><strong>Jenkins</strong></td><td>Auto-hospedado, altamente customizável</td></tr>
+                <tr><td><strong>CircleCI</strong></td><td>Rápido, boa integração com GitHub/Bitbucket</td></tr>
+                <tr><td><strong>Vercel / Netlify</strong></td><td>CI/CD integrado ao deploy, zero config para React</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="alert alert-success mb-0">
+          <strong>Resumo:</strong> CI/CD automatiza testes + build + deploy. Cada push na <code>main</code>
+          dispara o pipeline. Se todos os testes passarem, o build é gerado e o deploy é feito automaticamente.
+          Isso garante entregas rápidas, consistentes e sem erros manuais.
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

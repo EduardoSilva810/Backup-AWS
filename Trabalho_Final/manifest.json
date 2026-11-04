@@ -1,0 +1,19 @@
+{
+  "name": "Nocturna — Grimório de Estudos",
+  "short_name": "Nocturna",
+  "description": "Organize suas missões de estudo com Nocturna.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#100d18",
+  "theme_color": "#100d18",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

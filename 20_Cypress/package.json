@@ -1,0 +1,14 @@
+{
+  "name": "exemplo-cypress",
+  "version": "1.0.0",
+  "description": "Exemplo de testes E2E com Cypress - Programação Web II",
+  "scripts": {
+    "test": "npx cypress run",
+    "test:open": "npx cypress open",
+    "server": "npx http-server src -p 3000 -c-1"
+  },
+  "devDependencies": {
+    "cypress": "^13.0.0",
+    "http-server": "^14.1.0"
+  }
+}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPA e Rotas - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .nav-link.active { font-weight: bold; border-bottom: 3px solid #0d6efd; }
+    .page { display: none; }
+    .page.active { display: block; }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="container py-5">
+    <h1 class="text-3xl font-bold text-center mb-2">SPA com Rotas via Hash</h1>
+    <p class="text-center text-muted mb-4">Navegação sem recarregar a página — histórico preservado</p>
+
+    <nav class="nav nav-tabs justify-content-center mb-4" id="navPrincipal">
+      <a class="nav-link" href="#home" data-rota="home">Início</a>
+      <a class="nav-link" href="#sobre" data-rota="sobre">Sobre</a>
+      <a class="nav-link" href="#contato" data-rota="contato">Contato</a>
+    </nav>
+
+    <div id="conteudo">
+      <div id="pagina-home" class="page active">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <h2 class="card-title">Bem-vindo à Home</h2>
+            <p class="card-text">Esta é a página inicial da SPA. A navegação é feita via <code>hashchange</code> sem recarregar o navegador.</p>
+            <p>O histórico de navegação é preservado automaticamente (botão Voltar do navegador funciona).</p>
+            <div class="alert alert-primary mt-3">
+              <strong>Dica:</strong> Clique nos links e use os botões Voltar/Avançar do navegador.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="pagina-sobre" class="page">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h2 class="card-title">Sobre este projeto</h2>
+            <p class="card-text">Esta SPA (Single Page Application) foi construída com JavaScript puro para demonstrar o conceito de roteamento no lado do cliente.</p>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Técnica:</strong> Hash-based routing (#)</li>
+              <li class="list-group-item"><strong>Evento:</strong> window.addEventListener('hashchange', ...)</li>
+              <li class="list-group-item"><strong>Histórico:</strong> Navegação nativa do navegador preservada</li>
+              <li class="list-group-item"><strong>Sem recarregamento:</strong> A página nunca recarrega</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div id="pagina-contato" class="page">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h2 class="card-title">Contato</h2>
+            <p class="card-text">Entre em contato conosco pelo formulário abaixo.</p>
+            <form>
+              <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <input class="form-control" placeholder="Seu nome" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Mensagem</label>
+                <textarea class="form-control" rows="3" placeholder="Sua mensagem"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary" onclick="alert('Mensagem enviada (simulação)'); return false;">Enviar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const paginas = {
+        home: document.getElementById('pagina-home'),
+        sobre: document.getElementById('pagina-sobre'),
+        contato: document.getElementById('pagina-contato'),
+      };
+
+      function navegarPara(rota) {
+        Object.values(paginas).forEach(p => p.classList.remove('active'));
+        if (paginas[rota]) paginas[rota].classList.add('active');
+
+        document.querySelectorAll('#navPrincipal .nav-link').forEach(link => {
+          link.classList.remove('active');
+          if (link.dataset.rota === rota) link.classList.add('active');
+        });
+      }
+
+      function rotaAtual() {
+        const hash = window.location.hash.replace('#', '') || 'home';
+        return hash;
+      }
+
+      window.addEventListener('hashchange', function () {
+        navegarPara(rotaAtual());
+      });
+
+      // Navegação inicial
+      if (!window.location.hash) window.location.hash = 'home';
+      navegarPara(rotaAtual());
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pr-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="Width=device-width, initial-scale=1.0">
+
+    <title>Palword | Central de Chamados</title>
+
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+    <header class="topo">
+        <div class="logo">
+            <span class="logo-icone">🌿</span>
+            <div>
+                <h1>PAL<span>WORLD</span></h1>
+                <p>Central de Suporte</p>
+            </div>
+        </div>
+
+        <div class="status-servidor">
+            <span class="status-pronto"></span>
+            Sistema de Chamados
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="boas-vindas">
+            <div class="boas-vindas-texto">
+                <span class="etiqueta">CENTRAL DE SUPORTE</span>
+
+                <h2>Precisando de ajuda<br>na sua aventura?</h2>
+
+                <p>
+                    Registre seus problemas, acompanhe os chamados e mantenha sua jornada organizada!
+                </p>
+            </div>
+        </section>
+
+        <section class="resumo">
+            <article class="cartao-resumo">
+                <span class="resumo-icone">📋</span>
+                <div>
+                    <p>Total de Chamados</p>
+                    <h3 id="totalChamados">0</h3>
+                </div>
+            </article>
+
+            <article class="cartao-resumo">
+                <span class="resumo-icone">⏳</span>
+                <div>
+                    <p>Em andamento</p>
+                    <h3 id="chamadosAndamento">0</h3>
+                </div>
+            </article>
+
+            <article class="cartao-resumo">
+                <span class="resumo-icone">✅</span>
+                <div>
+                    <p>Resolvidos</p>
+                    <h3 id="chamadosResolvidos">0</h3>
+                </div>
+            </article>
+        </section>
+
+        <section class="conteudo">
+            <section class="painel formulario-painel">
+                <div class="titulo-painel">
+                    <div>
+                        <span class="subtitulo">NOVO REGISTRO</span>
+                        <h2>Registrar chamado</h2>
+                    </div>
+                    <span class="titulo-icone">✏️</span>
+                </div>
+
+                <form id="formChamado">
+                    <label for="titulo">Título do chamado</label>
+                    <input
+                        type="text"
+                        id="titulo"
+                        name="titulo"
+                        placeholder="Ex.: Computador não liga"
+                        required
+                    >
+
+                    <label for="descricao">Descrição do Problema</label>
+                    <textarea
+                        id="descricao"
+                        name="descricao"
+                        rows="4"
+                        placeholder="Explique o que aconteceu..."
+                        required
+                    ></textarea>
+
+                    <label for="prioridade">Prioridade</label>
+                    <select id="prioridade" name="prioridade" required>
+                        <option value="baixa">🟢 Baixa</option>
+                        <option value="media" selected>🟡 Média</option>
+                        <option value="alta">🔴 Alta</option>
+                    </select>
+
+                    <button type="submit" id="botaoSalvar">
+                        + Criar chamado
+                    </button>
+
+                    <p id="mensagem" role="status"></p>
+                </form>
+            </section>
+
+            <section class="painel chamados-painel">
+                <div class="titulo-painel">
+                    <div>
+                        <span class="subtitulo">CENTRAL DE MISSÕES</span>
+                        <h2>Seus chamados</h2>
+                    </div>
+                    <button type="button" id="botaoAtualizar" class="botao-atualizar">
+                        ↻ Atualizar
+                    </button>
+                </div>
+
+                <div id="listaChamados" class="lista-chamados">
+                    <p class="carregando">Carregando chamados...</p>
+                </div>
+            </section>
+        </section>
+
+        <footer>
+            <p>🌿 Palword Support Center - Sua aventura, nossa missão.</p>
+        </footer>
+    </main>
+
+    <script src="palword.js"></script>
+</body>
+</html>

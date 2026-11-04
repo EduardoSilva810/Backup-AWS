@@ -1,0 +1,26 @@
+body {
+    background: #111827;
+    color: white;
+    min-height: 100vh;
+}
+
+.card {
+    border: 1px soli #374151;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.progress {
+    height: 25px;
+}
+
+#battle-log {
+    height: 180px;
+    overflow-y:auto;
+    background: #0b0f19;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+#battle-log p {
+    margin-bottom: 8px;
+}

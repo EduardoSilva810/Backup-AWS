@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Velha - Bootstrap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 0%, #1b2a41, #0b1420 70%);
+      color: #eee;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+
+    .painel {
+      background: rgba(0, 0, 0, .35);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 1rem;
+    }
+
+    .simb-X { color: #ff6b6b; }
+    .simb-O { color: #63b8ff; }
+    .simb { line-height: 1; user-select: none; font-weight: 800; font-size: var(--s, 2.6rem); }
+
+    .cel {
+      border: 2px solid rgba(255, 255, 255, .15);
+      border-radius: 1rem;
+      background: rgba(0, 0, 0, .35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 4.5rem;
+      aspect-ratio: 1;
+      cursor: pointer;
+      transition: transform .12s, border-color .12s, box-shadow .12s;
+      position: relative;
+    }
+    .cel:hover { transform: translateY(-.2rem); border-color: rgba(255, 255, 255, .35); }
+    .cel.ocupada { cursor: default; }
+    .cel.ocupada:hover { transform: none; border-color: rgba(255, 255, 255, .15); }
+    .cel[data-prev="X"]::after { content: "\2715"; font-size: var(--s, 2.6rem); color: #ff6b6b; opacity: .22; font-weight: 800; }
+    .cel[data-prev="O"]::after { content: "\25EF"; font-size: var(--s, 2.6rem); color: #63b8ff; opacity: .22; }
+
+    .simb-grande { font-size: var(--s, 2.6rem); }
+
+    .cel.vitoria {
+      border-color: #ffd54f;
+      box-shadow: 0 0 1.1rem rgba(255, 215, 64, .55);
+      background: rgba(255, 213, 79, .12);
+    }
+
+    @keyframes tremer {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    .sacudir { animation: tremer .3s; }
+
+    .fade-in { animation: aparecer .4s ease; }
+    @keyframes aparecer { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+
+    .btn-lado { min-width: 3.5rem; font-size: 1.3rem; font-weight: 700; }
+    .btn-lado.ativo { outline: 3px solid #ffd54f; outline-offset: 2px; }
+
+    #tabuleiro { --s: 2.6rem; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">&#10057; Jogo da Velha</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menuNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item px-lg-2">
+            <span class="badge text-bg-danger" id="plc0">J1: 0</span>
+            <span class="badge text-bg-primary" id="plc1">J2: 0</span>
+            <span class="badge text-bg-warning" id="empB">Empates: 0</span>
+            <span class="badge text-bg-light text-dark" id="metaB">Meta 3 seg</span>
+          </li>
+          <li class="nav-item">
+            <button id="btnSom" class="btn btn-outline-warning btn-sm" title="Som ligado/desligado">&#128266;</button>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="ddToggle">Opções</a>
+            <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 240px;">
+              <label class="form-label small mb-0">Modo de jogo</label>
+              <select id="selModo" class="form-select form-select-sm mb-2">
+                <option value="cpu">Você vs Computador</option>
+                <option value="local">2 jogadores (mesmo teclado)</option>
+              </select>
+              <div id="dificWrap">
+                <label class="form-label small mb-0">Dificuldade do PC</label>
+                <select id="selDific" class="form-select form-select-sm mb-2">
+                  <option value="facil">Fácil (aleatório)</option>
+                  <option value="medio">Médio (bloqueia)</option>
+                  <option value="dificil">Difícil (imbatível*)</option>
+                </select>
+              </div>
+              <div id="simbWrap">
+                <label class="form-label small mb-0">Você joga com</label>
+                <select id="selSimb" class="form-select form-select-sm mb-2">
+                  <option value="X">X (vermelho)</option>
+                  <option value="O">O (azul)</option>
+                </select>
+              </div>
+              <label class="form-label small mb-0">Tabuleiro</label>
+              <select id="selTam" class="form-select form-select-sm mb-2">
+                <option value="3">3×3 — 3 em linha</option>
+                <option value="4">4×4 — 4 em linha</option>
+              </select>
+              <label class="form-label small mb-0">Campeonato: primeiro a</label>
+              <select id="selMeta" class="form-select form-select-sm mb-2">
+                <option value="3" selected>3 vitórias seguidas</option>
+                <option value="5">5 vitórias seguidas</option>
+                <option value="7">7 vitórias seguidas</option>
+                <option value="9">9 vitórias seguidas</option>
+              </select>
+              <small class="text-muted d-block mb-2" style="font-size:.72rem;">* Difícil 4×4 usa busca profunda — o computador pode levar 1–2 s para decidir.</small>
+              <hr class="my-2">
+              <button class="dropdown-item" id="btnNomes" data-bs-toggle="modal" data-bs-target="#modalNomes">Nomes dos jogadores...</button>
+              <button class="dropdown-item" id="btnHist" data-bs-toggle="modal" data-bs-target="#modalHist">Histórico de partidas</button>
+              <button class="dropdown-item" onclick="reiniciar();">Nova partida</button>
+              <hr class="my-2">
+              <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalInst">Como jogar</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-4" id="jogoArea">
+    <div id="msg" class="alert d-none" role="alert"></div>
+
+    <!-- ESTADO DA PARTIDA -->
+    <div class="row g-3 justify-content-center text-center mb-4">
+      <div class="col-auto">
+        <div class="painel px-4 py-2 d-flex align-items-center gap-3 flex-wrap justify-content-center">
+          <div id="infoTurno" class="fw-bold">Preparando...</div>
+          <div id="spinnerTurno" class="d-none">
+            <div class="spinner-border spinner-border-sm text-info"></div>
+          </div>
+          <span id="simbAtual" class="simb simb-grande d-none">X</span>
+          <span class="badge text-bg-light text-dark">Partida <span id="partB">1</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEQUÊNCIA -->
+    <div class="row justify-content-center text-center mb-2">
+      <div class="col-auto">
+        <div class="painel px-4 py-2 d-flex gap-3 flex-wrap justify-content-center align-items-center">
+          <small class="text-muted">Sequência:</small>
+          <span id="seqJ0" class="badge text-bg-danger">J1: 0 seg</span>
+          <span id="seqJ1" class="badge text-bg-primary">J2: 0 seg</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABULEIRO -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-auto">
+        <div class="painel p-4">
+          <div id="tabuleiro" class="d-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LADO (CPU mode) -->
+    <div class="row justify-content-center text-center mb-2" id="ladoRow">
+      <div class="col-auto">
+        <div class="painel px-4 py-3 d-flex align-items-center gap-3">
+          <span class="small text-muted">Você é:</span>
+          <button class="btn btn-outline-danger btn-lado" id="btnLadoX">X</button>
+          <button class="btn btn-outline-info btn-lado" id="btnLadoO">O</button>
+          <button class="btn btn-sm btn-outline-light" onclick="reiniciar();">Nova partida</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center text-muted small mt-3" id="legenda">
+      Gere 3 em linha (3×3) ou 4 em linha (4×4) para vencer. O primeiro a atingir a sequência de vitórias vence o campeonato.
+    </p>
+  </div>
+
+  <!-- MODAL: NOMES -->
+  <div class="modal fade" id="modalNomes" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Nomes dos jogadores</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Jogador 1 (X)</label>
+            <input type="text" id="txtNome1" class="form-control" maxlength="14">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jogador 2 (O)</label>
+            <input type="text" id="txtNome2" class="form-control" maxlength="14">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnSalvarNomes">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTÓRICO -->
+  <div class="modal fade" id="modalHist" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content text-bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Histórico de partidas</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body table-responsive">
+          <table class="table table-sm table-dark table-striped mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Resultado</th>
+                <th>Símbolo</th>
+                <th>Vitórias</th>
+                <th>Sequência</th>
+              </tr>
+            </thead>
+            <tbody id="histCorpo"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INSTRUÇÕES -->
+  <div class="modal fade" id="modalInst" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content text-bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Como jogar</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <ul>
+            <li>Clique em uma casa vazia para marcar <span class="simb simb-X fw-bold">X</span> (vermelho) ou <span class="simb simb-O fw-bold">O</span> (azul) e forme a linha no tamanho do tabuleiro: <strong>3 em linha no 3×3</strong> ou <strong>4 em linha no 4×4</strong>.</li>
+            <li><strong>Tabuleiro:</strong> escolha entre 3×3 (clássico) ou 4×4.</li>
+            <li><strong>Modo 2 jogadores:</strong> revezam no mesmo teclado. Nomes configuráveis.</li>
+            <li><strong>Dificuldade do PC:</strong> Fácil joga aleatório; Médio vence quando pode e bloqueia você; Difícil usa <strong>minimax</strong> — no 3×3 é impossível de vencer, no 4×4 é quase impossível (busca profunda + heurística).</li>
+            <li><strong>Seu lado:</strong> no modo vs PC, escolha jogar com X ou com O. X sempre começa cada partida; em cada nova partida o lado inicial alterna.</li>
+            <li><strong>Campeonato:</strong> cada vitória consecutiva soma 1 na sequência. Derrota ou empate zera a sequência. Quem atingir a meta (3/5/7/9 vitórias seguidas) vence o campeonato.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: FIM DE JOGO -->
+  <div class="modal fade" id="modalFim" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-bg-dark border-warning">
+        <div class="modal-header">
+          <h5 class="modal-title" id="fimTitulo">Fim de partida</h5>
+        </div>
+        <div class="modal-body fs-5 text-center p-4" id="fimResumo"></div>
+        <div class="modal-footer">
+          <button class="btn btn-warning" id="btnProxima">Nova partida</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var OPOS = { X: 'O', O: 'X' };
+
+      var MODO = 'cpu';
+      var DIFIC = 'medio';
+      var META = 3;
+      var TAM = 3;
+      var SIMBOLO_HUMANO = 'X';
+      var mutado = false;
+
+      try {
+        var cfg = JSON.parse(localStorage.getItem('velhaConfig') || '{}');
+        if (cfg.modo) MODO = cfg.modo;
+        if (cfg.dific) DIFIC = cfg.dific;
+        if (cfg.meta) META = cfg.meta;
+        if (cfg.tam) TAM = cfg.tam;
+        if (cfg.simb) SIMBOLO_HUMANO = cfg.simb;
+        if (typeof cfg.mutado === 'boolean') mutado = cfg.mutado;
+      } catch (e) {}
+
+      var LINHAS = [];
+      var tabuleiro = [];
+      var atual = 'X';
+      var primeiro = 'X';
+      var fim = false;
+      var partida = 1;
+      var empates = 0;
+      var historico = [];
+      var modFimInst = null;
+      var PROF_MAX = 9;
+
+      var jogadores = [
+        { nome: 'Você', vitorias: 0, seq: 0, cpu: false },
+        { nome: 'Computador', vitorias: 0, seq: 0, cpu: true }
+      ];
+      var donoDe = { X: 0, O: 1 };
+
+      function el(id) { return document.getElementById(id); }
+
+      function salvar() {
+        try {
+          localStorage.setItem('velhaConfig', JSON.stringify({ modo: MODO, dific: DIFIC, meta: META, tam: TAM, simb: SIMBOLO_HUMANO, mutado: mutado }));
+        } catch (e) {}
+      }
+
+      function gerarLinhas() {
+        var N = TAM * TAM;
+        LINHAS = [];
+        for (var r = 0; r < TAM; r++) { var lin = []; for (var c = 0; c < TAM; c++) lin.push(r * TAM + c); LINHAS.push(lin); }
+        for (var c = 0; c < TAM; c++) { var col = []; for (var r = 0; r < TAM; r++) col.push(r * TAM + c); LINHAS.push(col); }
+        var d1 = [], d2 = [];
+        for (var i = 0; i < TAM; i++) { d1.push(i * TAM + i); d2.push(i * TAM + (TAM - 1 - i)); }
+        LINHAS.push(d1, d2);
+      }
+
+      // ---------- SONS (Web Audio) ----------
+      var ctx = null;
+      function nota(freq, inicio, dur, tipo, vol) {
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.type = tipo || 'sine';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + inicio);
+        g.gain.exponentialRampToValueAtTime(vol || 0.16, ctx.currentTime + inicio + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + inicio + dur);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime + inicio);
+        o.stop(ctx.currentTime + inicio + dur + 0.03);
+      }
+
+      function som(nome) {
+        if (mutado) return;
+        try {
+          if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (ctx.state === 'suspended') ctx.resume();
+        } catch (e) { return; }
+        var t = 0;
+        switch (nome) {
+          case 'jogar': nota(440, t, 0.09, 'triangle', 0.16); nota(560, t + 0.06, 0.09, 'triangle', 0.12); break;
+          case 'hover': nota(1100, t, 0.035, 'sine', 0.04); break;
+          case 'erro': nota(150, t, 0.2, 'square', 0.09); break;
+          case 'vitoria': [392, 523, 659, 784].forEach(function (f, i) { nota(f, t + i * 0.12, 0.2, 'triangle', 0.16); }); break;
+          case 'derrota': [330, 262, 196].forEach(function (f, i) { nota(f, t + i * 0.16, 0.22, 'sawtooth', 0.1); }); break;
+          case 'empate': [330, 330, 330].forEach(function (f, i) { nota(f, t + i * 0.14, 0.16, 'sine', 0.09); }); break;
+          case 'embaralhar': for (var i = 0; i < 7; i++) nota(1300 + Math.random() * 1500, t + i * 0.03, 0.03, 'square', 0.03); break;
+        }
+      }
+
+      // ---------- LÓGICA ----------
+      function novoTab() { var N = TAM * TAM; tabuleiro = []; for (var i = 0; i < N; i++) tabuleiro.push(null); }
+
+      function vazios() {
+        var r = [];
+        for (var i = 0; i < TAM * TAM; i++) if (!tabuleiro[i]) r.push(i);
+        return r;
+      }
+
+      function vencedorLinha() {
+        for (var i = 0; i < LINHAS.length; i++) {
+          var l = LINHAS[i], ok = true;
+          for (var k = 1; k < l.length; k++) { if (tabuleiro[l[k]] !== tabuleiro[l[0]] || !tabuleiro[l[0]]) { ok = false; break; } }
+          if (ok) return l;
+        }
+        return null;
+      }
+
+      function listoParaGanhar(simbolo) {
+        for (var i = 0; i < LINHAS.length; i++) {
+          var l = LINHAS[i], iguais = 0, vazio = -1, ruim = false;
+          for (var k = 0; k < l.length; k++) {
+            if (tabuleiro[l[k]] === simbolo) iguais++;
+            else if (!tabuleiro[l[k]]) vazio = l[k];
+            else ruim = true;
+          }
+          if (!ruim && iguais === l.length - 1 && vazio !== -1) return vazio;
+        }
+        return null;
+      }
+
+      // --- heurística para 4×4 (avaliação relativa ao X) ---
+      function heuristic(tab) {
+        var sco = 0;
+        for (var i = 0; i < LINHAS.length; i++) {
+          var l = LINHAS[i], x = 0, o = 0;
+          for (var k = 0; k < l.length; k++) { if (tab[l[k]] === 'X') x++; else if (tab[l[k]] === 'O') o++; }
+          if (x > 0 && o > 0) continue;
+          if (x > 0) sco += Math.pow(3, x);
+          else if (o > 0) sco -= Math.pow(3, o);
+        }
+        return sco;
+      }
+
+      function ordemLances(tab) {
+        var N = TAM * TAM, centro = Math.floor(N / 2);
+        var cy = Math.floor(centro / TAM), cx = centro % TAM;
+        var lances = [];
+        for (var i = 0; i < N; i++) if (!tab[i]) lances.push(i);
+        lances.sort(function (a, b) {
+          var ay = Math.floor(a / TAM), ax = a % TAM;
+          var by = Math.floor(b / TAM), bx = b % TAM;
+          var da = Math.abs(ay - cy) + Math.abs(ax - cx);
+          var db = Math.abs(by - cy) + Math.abs(bx - cx);
+          return da - db;
+        });
+        return lances;
+      }
+
+      function mini(tab, s, prof, alfa, beta) {
+        var linha = vencedorLinha();
+        if (linha) return tab[linha[0]] === 'X' ? 100000 - prof : prof - 100000;
+        var cheio = true;
+        for (var i = 0; i < TAM * TAM; i++) { if (!tab[i]) { cheio = false; break; } }
+        if (cheio) return 0;
+        if (prof >= PROF_MAX) return heuristic(tab);
+        var lances = ordemLances(tab);
+        if (s === 'X') {
+          var best = -Infinity;
+          for (var i = 0; i < lances.length; i++) {
+            var p = lances[i]; tab[p] = s;
+            var v = mini(tab, 'O', prof + 1, alfa, beta);
+            tab[p] = null;
+            if (v > best) best = v;
+            if (v > alfa) alfa = v;
+            if (alfa >= beta) break;
+          }
+          return best;
+        } else {
+          var worst = Infinity;
+          for (var i = 0; i < lances.length; i++) {
+            var p = lances[i]; tab[p] = s;
+            var v = mini(tab, 'X', prof + 1, alfa, beta);
+            tab[p] = null;
+            if (v < worst) worst = v;
+            if (v < beta) beta = v;
+            if (alfa >= beta) break;
+          }
+          return worst;
+        }
+      }
+
+      function minimaxMelhor(simboloIA) {
+        var melhor, melhorPos = -1, lances = ordemLances(tabuleiro);
+        if (simboloIA === 'X') {
+          melhor = -Infinity; var alfa = -Infinity;
+          for (var i = 0; i < lances.length; i++) {
+            var p = lances[i]; tabuleiro[p] = simboloIA;
+            var v = mini(tabuleiro, 'O', 1, alfa, Infinity);
+            tabuleiro[p] = null;
+            if (v > melhor) { melhor = v; melhorPos = p; }
+            if (v > alfa) alfa = v;
+          }
+        } else {
+          melhor = Infinity; var beta = Infinity;
+          for (var i = 0; i < lances.length; i++) {
+            var p = lances[i]; tabuleiro[p] = simboloIA;
+            var v = mini(tabuleiro, 'X', 1, -Infinity, beta);
+            tabuleiro[p] = null;
+            if (v < melhor) { melhor = v; melhorPos = p; }
+            if (v < beta) beta = v;
+          }
+        }
+        return melhorPos;
+      }
+
+      function escolherCPU(simboloIA) {
+        var lances = vazios();
+        if (!lances.length) return null;
+        if (DIFIC === 'facil') return lances[Math.floor(Math.random() * lances.length)];
+
+        var ganha = listoParaGanhar(simboloIA);
+        if (ganha !== null) return ganha;
+        var bloqueia = listoParaGanhar(OPOS[simboloIA]);
+        if (bloqueia !== null) return bloqueia;
+
+        if (DIFIC === 'medio') {
+          if (tabuleiro[Math.floor(TAM * TAM / 2)] === null) return Math.floor(TAM * TAM / 2);
+          var cantos = [];
+          for (var i = 0; i < TAM * TAM; i++) {
+            var r = Math.floor(i / TAM), c = i % TAM;
+            if (tabuleiro[i] === null && (r === 0 || r === TAM - 1) && (c === 0 || c === TAM - 1)) cantos.push(i);
+          }
+          if (cantos.length) return cantos[Math.floor(Math.random() * cantos.length)];
+          return lances[Math.floor(Math.random() * lances.length)];
+        }
+
+        return minimaxMelhor(simboloIA);
+      }
+
+      function donoDoSimbolo(s) { return jogadores[donoDe[s]]; }
+      function humanoDaVez() { return !donoDoSimbolo(atual).cpu && !fim; }
+
+      // ---------- UI ----------
+      function nomeCurto(n) { return n.length > 12 ? n.slice(0, 11) + '\u2026' : n; }
+
+      function alertar(msg, tipo) {
+        var e = el('msg');
+        e.className = 'alert fade-in ' + (tipo === 'danger' ? 'alert-danger' : tipo === 'warning' ? 'alert-warning' : tipo === 'success' ? 'alert-success' : 'alert-info');
+        e.textContent = msg;
+        e.classList.remove('d-none');
+        clearTimeout(alertar._t);
+        alertar._t = setTimeout(function () { e.classList.add('d-none'); }, 3600);
+      }
+
+      function sacudir() {
+        var area = el('jogoArea');
+        area.classList.add('sacudir');
+        setTimeout(function () { area.classList.remove('sacudir'); }, 320);
+      }
+
+      function render() {
+        var tabEl = el('tabuleiro');
+        var N = TAM * TAM;
+        tabEl.style.gridTemplateColumns = 'repeat(' + TAM + ', minmax(' + (TAM === 3 ? '4.5rem' : '3.4rem') + ', ' + (TAM === 3 ? '6.5rem' : '4.8rem') + '))';
+        tabEl.style.setProperty('--s', TAM === 3 ? '2.6rem' : '1.9rem');
+
+        var html = '';
+        for (var i = 0; i < N; i++) {
+          html += '<div class="cel' + (tabuleiro[i] ? ' ocupada' : '') + '" data-pos="' + i + '"></div>';
+        }
+        tabEl.innerHTML = html;
+
+        var venc = vencedorLinha();
+        var cells = tabEl.querySelectorAll('.cel');
+        for (var k = 0; k < N; k++) {
+          var cell = cells[k];
+          if (tabuleiro[k]) {
+            cell.innerHTML = '<span class="simb simb-' + tabuleiro[k] + '">' +
+              (tabuleiro[k] === 'X' ? '\u2715' : '\u25EF') + '</span>';
+            if (venc && venc.indexOf(k) !== -1) cell.classList.add('vitoria');
+          }
+          cell.addEventListener('click', function () { fazerJogada(+this.getAttribute('data-pos')); });
+          cell.addEventListener('mouseenter', function () { hoverCel(this); });
+          cell.addEventListener('mouseleave', function () { this.removeAttribute('data-prev'); });
+        }
+
+        // turno
+        var info = el('infoTurno');
+        var spin = el('spinnerTurno');
+        var simbEl = el('simbAtual');
+        if (fim) {
+          info.textContent = 'Fim de partida';
+          spin.classList.add('d-none');
+          simbEl.classList.add('d-none');
+        } else {
+          info.textContent = 'Vez de ' + donoDoSimbolo(atual).nome;
+          simbEl.className = 'simb simb-grande simb-' + atual;
+          simbEl.textContent = atual === 'X' ? '\u2715' : '\u25EF';
+          simbEl.classList.remove('d-none');
+          if (donoDoSimbolo(atual).cpu) spin.classList.remove('d-none');
+          else spin.classList.add('d-none');
+        }
+
+        // placar + sequência
+        el('plc0').textContent = nomeCurto(jogadores[0].nome) + ' (' + (MODO === 'local' || donoDe.X === 0 ? 'X' : 'O') + '): ' + jogadores[0].vitorias;
+        el('plc1').textContent = nomeCurto(jogadores[1].nome) + ' (' + (donoDe.X === 1 ? 'X' : 'O') + '): ' + jogadores[1].vitorias;
+        el('empB').textContent = 'Empates: ' + empates;
+        el('metaB').textContent = 'Meta: ' + META + ' seg';
+        el('seqJ0').textContent = nomeCurto(jogadores[0].nome) + ': ' + jogadores[0].seq + ' seg';
+        el('seqJ1').textContent = nomeCurto(jogadores[1].nome) + ': ' + jogadores[1].seq + ' seg';
+        el('partB').textContent = partida;
+        document.title = MODO === 'cpu' ? 'Jogo da Velha vs PC' : 'Jogo da Velha 2 Jogadores';
+        el('legenda').textContent = 'Gere ' + TAM + ' em linha (' + TAM + '×' + TAM + ') para vencer. Primeiro a ' + META + ' vitórias seguidas vence o campeonato.';
+
+        // destaque lado
+        el('btnLadoX').classList.toggle('ativo', !jogadores[0].cpu && donoDe.X === 0);
+        el('btnLadoO').classList.toggle('ativo', !jogadores[0].cpu && donoDe.X !== 0);
+      }
+
+      function hoverCel(cell) {
+        if (fim || cell.classList.contains('ocupada') || !humanoDaVez()) return;
+        cell.setAttribute('data-prev', atual);
+        som('hover');
+      }
+
+      // ---------- AÇÕES ----------
+      function fazerJogada(pos) {
+        if (fim) return;
+        if (!humanoDaVez()) { som('erro'); sacudir(); alertar('Espere sua vez!', 'warning'); return; }
+        if (tabuleiro[pos]) { som('erro'); sacudir(); return; }
+        colocar(pos, atual);
+      }
+
+      function colocar(pos, simbolo) {
+        tabuleiro[pos] = simbolo;
+        som('jogar');
+        var linha = vencedorLinha();
+        var cheio = tabuleiro.every(function (c) { return c; });
+        render();
+        if (linha || cheio) {
+          var vencedor = linha ? tabuleiro[linha[0]] : null;
+          finalizar({ vencedor: vencedor, empate: !vencedor && cheio, linha: linha });
+          return;
+        }
+        atual = OPOS[simbolo];
+        render();
+        if (donoDoSimbolo(atual).cpu) turnoCPU();
+      }
+
+      function turnoCPU() {
+        var s = atual;
+        var atraso = DIFIC === 'facil' ? 900 : DIFIC === 'medio' ? 700 : (TAM === 4 ? 800 : 600);
+        setTimeout(function () {
+          if (fim || atual !== s || !donoDoSimbolo(atual).cpu) return;
+          var pos = escolherCPU(s);
+          if (pos === null) return;
+          colocar(pos, s);
+        }, atraso);
+      }
+
+      function finalizar(res) {
+        fim = true;
+        if (res.vencedor) {
+          var vInd = donoDe[res.vencedor];
+          var v = jogadores[vInd];
+          var p = jogadores[1 - vInd];
+          v.vitorias++;
+          v.seq++;
+          p.seq = 0;
+          var campeao = v.seq >= META;
+          som((MODO === 'cpu' && v.cpu) ? 'derrota' : 'vitoria');
+          historico.push({ vencedor: v.nome, simb: res.vencedor, vInd: vInd, placar: v.vitorias + ' x ' + p.vitorias, seq: v.seq });
+          el('fimTitulo').textContent = campeao ? '\uD83C\uDFC6 Campeonato!' : '\uD83C\uDF89 ' + v.nome + ' venceu!';
+          var corpo = '<span class="simb simb-' + res.vencedor + '" style="font-size:3rem;">' + (res.vencedor === 'X' ? '\u2715' : '\u25EF') + '</span><br><br>' +
+            '<strong>' + v.nome + '</strong> fechou ' + TAM + ' em linha' +
+            (campeao ? ' e atingiu a meta de <strong>' + META + ' vitórias seguidas</strong>!' : ' — sequência: ' + v.seq + ' seguidas.') +
+            '<br><br>Placar: <strong>' + v.nome + ' ' + v.vitorias + '</strong> x <strong>' + p.vitorias + '</strong> ' + p.nome +
+            ' <span class="text-muted">(' + empates + ' empates)</span>.';
+          el('fimResumo').innerHTML = corpo;
+          el('btnProxima').textContent = campeao ? 'Novo campeonato' : 'Nova partida';
+        } else {
+          empates++;
+          jogadores[0].seq = 0;
+          jogadores[1].seq = 0;
+          som('empate');
+          historico.push({ vencedor: 'Empate', simb: '-', vInd: -1, placar: jogadores[0].vitorias + ' x ' + jogadores[1].vitorias, seq: 0 });
+          el('fimTitulo').textContent = '\uD83E\uDD1D Empate!';
+          el('fimResumo').innerHTML = 'Deu velha: todas as casas preenchidas sem ' + TAM + ' em linha.<br><br>' +
+            'Placar: <strong>' + jogadores[0].nome + ' ' + jogadores[0].vitorias + '</strong> x <strong>' + jogadores[1].vitorias + '</strong> ' + jogadores[1].nome +
+            ' <span class="text-muted">(' + empates + ' empates)</span>.';
+          el('btnProxima').textContent = 'Nova partida';
+        }
+        copiarHistorico();
+        if (!modFimInst) modFimInst = new bootstrap.Modal(el('modalFim'), { backdrop: 'static' });
+        modFimInst.show();
+        render();
+      }
+
+      function copiarHistorico() { if (historico.length > 60) historico.shift(); }
+
+      function renderHistorico() {
+        var corpo = el('histCorpo');
+        if (!historico.length) {
+          corpo.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhuma partida concluída ainda.</td></tr>';
+          return;
+        }
+        var linhas = '';
+        for (var i = historico.length - 1; i >= 0; i--) {
+          var r = historico[i];
+          var sel;
+          if (r.vInd === -1) sel = 'text-bg-secondary';
+          else sel = r.vInd === 0 ? 'text-bg-success' : 'text-bg-danger';
+          linhas += '<tr><td>' + (partida - i) + '</td>' +
+            '<td><span class="badge ' + sel + '">' + r.vencedor + '</span></td>' +
+            '<td><span class="simb simb-' + (r.simb === 'X' ? 'X' : 'O') + ' fw-bold">' + (r.simb === 'X' ? '\u2715' : '\u25EF') + '</span></td>' +
+            '<td>' + r.placar + '</td>' +
+            '<td><span class="badge text-bg-info">' + (r.seq > 0 ? r.seq + ' seg' : '—') + '</span></td></tr>';
+        }
+        corpo.innerHTML = linhas;
+      }
+
+      // ---------- REINÍCIO / CONFIG ----------
+      function reiniciar() {
+        if (modFimInst) {
+          var inst = bootstrap.Modal.getInstance(el('modalFim'));
+          if (inst) inst.hide();
+        }
+        if (jogadores[0].seq >= META || jogadores[1].seq >= META) {
+          jogadores[0].vitorias = 0; jogadores[0].seq = 0;
+          jogadores[1].vitorias = 0; jogadores[1].seq = 0;
+          empates = 0; historico = [];
+        }
+        novoTab();
+        fim = false;
+        partida++;
+        primeiro = OPOS[primeiro];
+        atual = primeiro;
+        som('embaralhar');
+        render();
+        if (donoDoSimbolo(atual).cpu) turnoCPU();
+        else alertar('Começa: ' + donoDoSimbolo(atual).nome + ' (' + atual + ').', 'info');
+      }
+
+      function aplicarDificVisible() {
+        var local = MODO === 'local';
+        el('dificWrap').style.display = local ? 'none' : '';
+        el('simbWrap').style.display = local ? 'none' : '';
+        el('ladoRow').style.display = local ? 'none' : '';
+      }
+
+      function aplicarModo() {
+        if (MODO === 'local') {
+          jogadores[0] = { nome: 'Jogador 1', vitorias: 0, seq: 0, cpu: false };
+          jogadores[1] = { nome: 'Jogador 2', vitorias: 0, seq: 0, cpu: false };
+          donoDe = { X: 0, O: 1 };
+        } else {
+          jogadores[0] = { nome: 'Você', vitorias: 0, seq: 0, cpu: false };
+          jogadores[1] = { nome: 'Computador', vitorias: 0, seq: 0, cpu: true };
+          donoDe = SIMBOLO_HUMANO === 'X' ? { X: 0, O: 1 } : { X: 1, O: 0 };
+        }
+        empates = 0; historico = [];
+        partida = 0; primeiro = 'X';
+        aplicarDificVisible();
+        reiniciar();
+      }
+
+      function aplicarTamanho() {
+        PROF_MAX = TAM === 4 ? 8 : 999;
+        gerarLinhas();
+        jogadores[0].vitorias = 0; jogadores[0].seq = 0;
+        jogadores[1].vitorias = 0; jogadores[1].seq = 0;
+        empates = 0; historico = [];
+        partida = 0; primeiro = 'X';
+        reiniciar();
+      }
+
+      function aplicarSimbolo() {
+        donoDe = SIMBOLO_HUMANO === 'X' ? { X: 0, O: 1 } : { X: 1, O: 0 };
+        primeiro = atual === 'X' ? 'O' : 'X';
+        atual = primeiro;
+        novoTab();
+        fim = false;
+        partida++;
+        render();
+        if (donoDoSimbolo(atual).cpu) turnoCPU();
+        else alertar('Você começa (' + atual + ').', 'info');
+      }
+
+      function fecharDrop() {
+        try { bootstrap.Dropdown.getOrCreateInstance(el('ddToggle')).hide(); } catch (e) {}
+      }
+
+      // ---------- INIT ----------
+      el('btnSom').addEventListener('click', function () {
+        mutado = !mutado;
+        el('btnSom').textContent = mutado ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+        if (!mutado) som('jogar');
+        salvar();
+      });
+
+      el('selModo').addEventListener('change', function () { MODO = this.value; salvar(); aplicarModo(); fecharDrop(); });
+      el('selDific').addEventListener('change', function () { DIFIC = this.value; salvar(); fecharDrop(); });
+      el('selSimb').addEventListener('change', function () { SIMBOLO_HUMANO = this.value; salvar(); aplicarSimbolo(); fecharDrop(); });
+      el('selTam').addEventListener('change', function () { TAM = +this.value; salvar(); aplicarTamanho(); fecharDrop(); });
+      el('selMeta').addEventListener('change', function () { META = +this.value; salvar(); fecharDrop(); });
+
+      el('btnProxima').addEventListener('click', reiniciar);
+      el('btnHist').addEventListener('click', renderHistorico);
+
+      el('btnSalvarNomes').addEventListener('click', function () {
+        var n1 = el('txtNome1').value.trim();
+        var n2 = el('txtNome2').value.trim();
+        if (n1) jogadores[0].nome = n1;
+        if (n2) jogadores[1].nome = n2;
+        render();
+        bootstrap.Modal.getInstance(el('modalNomes')).hide();
+      });
+
+      el('btnNomes').addEventListener('click', function () {
+        el('txtNome1').value = jogadores[0].nome;
+        el('txtNome2').value = jogadores[1].nome;
+      });
+
+      el('btnLadoX').addEventListener('click', function () { SIMBOLO_HUMANO = 'X'; salvar(); aplicarSimbolo(); });
+      el('btnLadoO').addEventListener('click', function () { SIMBOLO_HUMANO = 'O'; salvar(); aplicarSimbolo(); });
+
+      el('selModo').value = MODO;
+      el('selDific').value = DIFIC;
+      el('selSimb').value = SIMBOLO_HUMANO;
+      el('selTam').value = String(TAM);
+      el('selMeta').value = String(META);
+      el('btnSom').textContent = mutado ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+
+      gerarLinhas();
+      window.reiniciar = reiniciar;
+      aplicarModo();
+    })();
+  </script>
+</body>
+</html>

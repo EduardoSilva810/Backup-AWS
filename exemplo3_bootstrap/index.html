@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNO vs Computador - Bootstrap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 0%, #1b2a41, #0b1420 70%);
+      color: #eee;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+
+    .carta-c {
+      position: relative;
+      border-radius: .6rem;
+      border: 2px solid rgba(255, 255, 255, .45);
+      box-shadow: 0 .35rem .9rem rgba(0, 0, 0, .5);
+      user-select: none;
+      flex-shrink: 0;
+      opacity: .55;
+    }
+    .carta-c.jogavel {
+      opacity: 1;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .carta-c.jogavel:hover {
+      transform: translateY(-.8rem);
+      box-shadow: 0 .6rem 1.2rem rgba(255, 255, 255, .25);
+    }
+    .carta-c .c-corner {
+      position: absolute;
+      top: .2rem;
+      left: .45rem;
+      font-weight: 800;
+      font-size: .68rem;
+      color: #222;
+      line-height: 1;
+    }
+    .carta-c .c-oval {
+      position: absolute;
+      top: 16%;
+      left: 10%;
+      right: 10%;
+      bottom: 16%;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .22);
+      border: 1px solid rgba(255, 255, 255, .5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 .1rem .2rem rgba(0, 0, 0, .45);
+    }
+    .carta-c .c-dots {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .25rem;
+    }
+    .carta-c .c-dots span {
+      width: .85rem;
+      height: .85rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, .7);
+    }
+
+    .c-vermelho { background: linear-gradient(145deg, #ff6b6b, #b71c1c); }
+    .c-amarelo  { background: linear-gradient(145deg, #ffe066, #d69e00); }
+    .c-verde    { background: linear-gradient(145deg, #69e078, #1e7e34); }
+    .c-azul     { background: linear-gradient(145deg, #63b8ff, #1b5eb4); }
+    .c-cor      { background: linear-gradient(145deg, #3a3a4d, #101018); }
+
+    .cor-vermelho { background: #c62828; }
+    .cor-amarelo  { background: #fbc02d; }
+    .cor-verde    { background: #2e7d32; }
+    .cor-azul     { background: #1565c0; }
+
+    .carta-c.tamanho-topo { width: 8.5rem; height: 12.2rem; }
+    .carta-c.tamanho-topo .c-oval { font-size: 2.4rem; }
+    .carta-c.tamanho-mao  { width: 4.4rem; height: 6.4rem; }
+    .carta-c.tamanho-mao .c-oval { font-size: 1.15rem; }
+    .carta-c.tamanho-mao .c-dots span { width: .5rem; height: .5rem; }
+    .carta-c.tamanho-mini { width: 2.6rem; height: 3.8rem; }
+    .carta-c.tamanho-mini .c-oval { font-size: .7rem; }
+    .carta-c.tamanho-mini .c-dots span { width: .32rem; height: .32rem; }
+
+    .carta-verso {
+      background: repeating-linear-gradient(45deg, #1f2f8f, #1f2f8f 6px, #26359f 6px, #26359f 12px);
+      border-radius: .55rem;
+      border: 2px solid rgba(255, 255, 255, .4);
+      box-shadow: 0 .35rem .9rem rgba(0, 0, 0, .5);
+      flex-shrink: 0;
+    }
+    .carta-verso.tamanho-topo { width: 8.5rem; height: 12.2rem; }
+    .carta-verso.tamanho-mini { width: 2.6rem; height: 3.8rem; }
+
+    .chips-cor span {
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: .3rem;
+      border: 2px solid rgba(255, 255, 255, .25);
+      opacity: .3;
+    }
+    .chips-cor span.ativa {
+      opacity: 1;
+      border-color: #fff;
+      box-shadow: 0 0 .5rem rgba(255, 255, 255, .6);
+    }
+
+    .painel {
+      background: rgba(0, 0, 0, .35);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 1rem;
+    }
+
+    @keyframes tremer {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    .sacudir { animation: tremer .3s; }
+
+    #maoInf.inativo .carta-c.jogavel {
+      cursor: not-allowed;
+      opacity: .55;
+      transform: none;
+    }
+    #maoInf.inativo .carta-c.jogavel:hover { transform: none; }
+
+    .fade-in { animation: aparecer .4s ease; }
+    @keyframes aparecer { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+
+    .cor-btn-guarda { width: 4.5rem; height: 4.5rem; border-radius: .75rem; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">&#127921; UNO vs Computador</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menuNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item px-lg-2">
+            <span class="badge text-bg-success" id="plc0">J1: 0</span>
+            <span class="badge text-bg-danger" id="plc1">J2: 0</span>
+            <span class="badge text-bg-warning" id="metaB">Meta 200</span>
+            <span class="badge text-bg-secondary" id="unosB">UNO! 0</span>
+          </li>
+          <li class="nav-item">
+            <button id="btnSom" class="btn btn-outline-warning btn-sm" title="Som ligado/desligado">&#128266;</button>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="ddToggle">Opções</a>
+            <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 230px;">
+              <label class="form-label small mb-0">Modo de jogo</label>
+              <select id="selModo" class="form-select form-select-sm mb-2">
+                <option value="cpu">Você vs Computador</option>
+                <option value="local">2 jogadores (mesmo teclado)</option>
+              </select>
+              <div id="dificWrap">
+                <label class="form-label small mb-0">Dificuldade do PC</label>
+                <select id="selDific" class="form-select form-select-sm mb-2">
+                  <option value="facil">Fácil</option>
+                  <option value="medio">Médio</option>
+                  <option value="dificil">Difícil</option>
+                </select>
+              </div>
+              <label class="form-label small mb-0">Meta de pontos (campeonato)</label>
+              <select id="selMeta" class="form-select form-select-sm">
+                <option value="200">200 pontos</option>
+                <option value="300">300 pontos</option>
+                <option value="500" selected>500 pontos</option>
+                <option value="1000">1000 pontos</option>
+              </select>
+              <hr class="my-2">
+              <button class="dropdown-item" id="btnNomes" data-bs-toggle="modal" data-bs-target="#modalNomes">Nomes dos jogadores...</button>
+              <button class="dropdown-item" id="btnHist" data-bs-toggle="modal" data-bs-target="#modalHist">Histórico de rodadas</button>
+              <button class="dropdown-item" onclick="reiniciar();">Novo jogo</button>
+              <hr class="my-2">
+              <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalInst">Como jogar</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-4" id="jogoArea">
+    <div id="msg" class="alert d-none" role="alert"></div>
+
+    <!-- ESTADO DA PARTIDA -->
+    <div class="row g-3 justify-content-center text-center mb-3">
+      <div class="col-auto">
+        <div class="painel px-4 py-2 d-flex align-items-center gap-3 flex-wrap justify-content-center">
+          <div id="infoTurno" class="fw-bold">Preparando...</div>
+          <div id="spinnerTurno" class="d-none">
+            <div class="spinner-border spinner-border-sm text-info"></div>
+          </div>
+          <div class="chips-cor" id="chipsCor"></div>
+          <span class="badge text-bg-light text-dark">Rodada <span id="rodB">1</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESA: compra + descarte -->
+    <div class="row g-4 justify-content-center align-items-center mb-4">
+      <div class="col-auto text-center">
+        <button id="pilhaComprar" class="btn btn-link p-0 d-block mx-auto" title="Comprar carta">
+          <div class="position-relative" style="width:8.5rem;height:12.2rem;">
+            <div class="carta-verso tamanho-topo position-absolute w-100 h-100" style="left:.25rem;top:-.25rem;opacity:.5;"></div>
+            <div class="carta-verso tamanho-topo position-absolute w-100 h-100"></div>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-dark border"><span id="contComprar">0</span></span>
+          </div>
+        </button>
+        <div class="mt-2 text-muted small">Comprar <span id="contComprar2">0</span></div>
+      </div>
+      <div class="col-auto text-center">
+        <div id="topoDescarte" class="d-inline-block"></div>
+        <div class="mt-2 text-muted small">Descarte (carta da vez)</div>
+      </div>
+    </div>
+
+    <!-- MÃO OCULTA (oponente) -->
+    <div class="painel p-3 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0"><span id="nomeSup">Oponente</span> <span class="badge text-bg-danger" id="numSup">0 cartas</span></h6>
+        <span id="unoSup" class="badge text-bg-warning d-none">UNO! gritado</span>
+      </div>
+      <div id="maoSup" class="d-flex flex-wrap gap-2"></div>
+    </div>
+
+    <!-- MÃO ATIVA -->
+    <div class="painel p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">
+          <span id="nomeInf">Você</span> <span class="badge text-bg-success" id="numInf">0 cartas</span>
+          <span id="unoInf" class="badge text-bg-warning d-none">UNO! gritado</span>
+        </h6>
+        <div>
+          <button id="btnPassar" class="btn btn-sm btn-outline-light d-none">Passar a vez</button>
+          <button id="btnUNO" class="btn btn-sm btn-warning" disabled>&#127921; Gritar UNO!</button>
+        </div>
+      </div>
+      <div id="maoInf" class="d-flex gap-2 overflow-auto pt-2 pb-4 px-1"></div>
+    </div>
+
+    <p class="text-center text-muted small mt-4">
+      +2, +4, Pular e Invertida: com 2 jogadores, quem joga continua (o oponente é pulado).
+      Pontos oficiais: cartas numeradas valem o número, ações valem 20 e curingas valem 50.
+    </p>
+  </div>
+
+  <!-- MODAL: ESCOLHER COR -->
+  <div class="modal fade" id="modalCor" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Escolha a cor (carta curinga)</h5>
+        </div>
+        <div class="modal-body d-flex justify-content-around flex-wrap gap-2">
+          <button class="cor-vermelho cor-btn-guarda btn border border-light fs-1 text-white" onclick="aplicarCor('vermelho');"></button>
+          <button class="cor-amarelo cor-btn-guarda btn border border-light fs-1" onclick="aplicarCor('amarelo');"></button>
+          <button class="cor-verde cor-btn-guarda btn border border-light fs-1 text-white" onclick="aplicarCor('verde');"></button>
+          <button class="cor-azul cor-btn-guarda btn border border-light fs-1 text-white" onclick="aplicarCor('azul');"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NOMES -->
+  <div class="modal fade" id="modalNomes" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Nomes dos jogadores</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Jogador 1 (esquerda/PC)</label>
+            <input type="text" id="txtNome1" class="form-control" maxlength="14">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jogador 2 (direita)</label>
+            <input type="text" id="txtNome2" class="form-control" maxlength="14">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnSalvarNomes">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTÓRICO -->
+  <div class="modal fade" id="modalHist" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content text-bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Histórico de rodadas</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body table-responsive">
+          <table class="table table-sm table-dark table-striped mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Vencedor</th>
+                <th>Pontos</th>
+                <th>Placar</th>
+              </tr>
+            </thead>
+            <tbody id="histCorpo"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INSTRUÇÕES -->
+  <div class="modal fade" id="modalInst" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content text-bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Como jogar</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <ul>
+            <li>Na sua vez, jogue uma carta da <strong>mesma cor</strong> ou do <strong>mesmo símbolo</strong> da carta no descarte.</li>
+            <li><strong>Curinga (COR):</strong> jogue em qualquer cor e escolha a próxima (abre um seletor). <strong>+4:</strong> mesmo efeito, além de o oponente comprar 4.</li>
+            <li><strong>+2:</strong> oponente compra 2. <strong>Pular/Invertida:</strong> oponente perde a vez (com 2 jogadores, quem jogou continua).</li>
+            <li>Sem carta compatível? <strong>Compre</strong>. Se a carta comprada servir, jogue-a ou clique em <strong>Passar a vez</strong>. Também pode <strong>passar a vez voluntariamente</strong> a qualquer momento na sua vez.</li>
+            <li>Com <strong>1 carta</strong>, clique em <strong>Gritar UNO!</strong> antes de jogá-la.</li>
+            <li><strong>Pontuação oficial:</strong> o vencedor da rodada soma os pontos das cartas do oponente (Número = valor, +2/Pular/Invertida = 20, curingas = 50). Quem chegar à <strong>meta</strong> primeiro vence o campeonato.</li>
+            <li><strong>Modo 2 jogadores:</strong> revezam no mesmo teclado — a mão virada para baixo fica oculta até ser a vez do dono.</li>
+            <li><strong>Dificuldade:</strong> Fácil joga quase aleatório; Médio prefere a cor dominante; Difícil usa ações com estratégia e segura curingas.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: FIM DE JOGO -->
+  <div class="modal fade" id="modalFim" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-bg-dark border-warning">
+        <div class="modal-header">
+          <h5 class="modal-title" id="fimTitulo">Fim de jogo</h5>
+        </div>
+        <div class="modal-body fs-5 text-center p-4" id="fimResumo"></div>
+        <div class="modal-footer">
+          <button class="btn btn-warning" id="btnProxima">Nova rodada</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var cores = ['vermelho', 'amarelo', 'verde', 'azul'];
+      var simbolos = ['0','1','2','3','4','5','6','7','8','9','Skip','Reverse','Draw2'];
+      var CORES_NUMERO = ['0','1','2','3','4','5','6','7','8','9'];
+      var MODO = 'cpu';
+      var DIFIC = 'medio';
+      var META = 500;
+      var mutado = false;
+
+      try {
+        var cfg = JSON.parse(localStorage.getItem('unoConfig') || '{}');
+        if (cfg.modo) MODO = cfg.modo;
+        if (cfg.dific) DIFIC = cfg.dific;
+        if (cfg.meta) META = cfg.meta;
+        if (typeof cfg.mutado === 'boolean') mutado = cfg.mutado;
+      } catch (e) {}
+
+      var pilhaComprar = [];
+      var pilhaDescartar = [];
+      var corAtiva = 'vermelho';
+      var indiceTurno = 0;
+      var fim = false;
+      var comprouNestaVez = false;
+      var pendente = null;
+      var modCor = null;
+      var totalUnos = 0;
+      var rodada = 1;
+      var primeira = true;
+      var historico = [];
+
+      var jogadores = [
+        { nome: 'Você', mao: [], gritado: false, cpu: false, pontos: 0 },
+        { nome: 'Computador', mao: [], gritado: false, cpu: true, pontos: 0 }
+      ];
+
+      function el(id) { return document.getElementById(id); }
+
+      function salvar() {
+        try {
+          localStorage.setItem('unoConfig', JSON.stringify({ modo: MODO, dific: DIFIC, meta: META, mutado: mutado }));
+        } catch (e) {}
+      }
+
+      // ---------- SONS (Web Audio, sem arquivos) ----------
+      var ctx = null;
+      function nota(freq, inicio, dur, tipo, vol) {
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.type = tipo || 'sine';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + inicio);
+        g.gain.exponentialRampToValueAtTime(vol || 0.16, ctx.currentTime + inicio + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + inicio + dur);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime + inicio);
+        o.stop(ctx.currentTime + inicio + dur + 0.03);
+      }
+
+      function som(nome) {
+        if (mutado) return;
+        try {
+          if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (ctx.state === 'suspended') ctx.resume();
+        } catch (e) { return; }
+        var t = 0;
+        switch (nome) {
+          case 'jogar':
+            nota(530, t, 0.12, 'triangle', 0.15); nota(670, t + 0.06, 0.10, 'triangle', 0.13); break;
+          case 'comprar':
+            nota(420, t, 0.09, 'sawtooth', 0.08); nota(320, t + 0.08, 0.09, 'sawtooth', 0.08); break;
+          case 'cor':
+            nota(290, t, 0.11, 'sine', 0.13); nota(460, t + 0.07, 0.12, 'sine', 0.13); break;
+          case 'erro':
+            nota(140, t, 0.26, 'square', 0.09); break;
+          case 'uno':
+            [523, 659, 784].forEach(function (f, i) { nota(f, t + i * 0.09, 0.13, 'triangle', 0.15); }); break;
+          case 'vitoria':
+            [392, 523, 659, 784].forEach(function (f, i) { nota(f, t + i * 0.12, 0.2, 'triangle', 0.16); }); break;
+          case 'derrota':
+            [330, 262, 196].forEach(function (f, i) { nota(f, t + i * 0.16, 0.22, 'sawtooth', 0.1); }); break;
+          case 'embaralhar':
+            for (var i = 0; i < 8; i++) nota(1400 + Math.random() * 1600, t + i * 0.02, 0.025, 'square', 0.03); break;
+          case 'hover':
+            nota(1150, t, 0.035, 'sine', 0.045); break;
+        }
+      }
+
+      // ---------- BIBLIOTECA ----------
+      function novoBaralho() {
+        var b = [], n = 0, cor, s, k;
+        for (var ci = 0; ci < cores.length; ci++) {
+          cor = cores[ci];
+          for (var si = 0; si < simbolos.length; si++) {
+            s = simbolos[si];
+            var qtd = s === '0' ? 1 : 2;
+            for (k = 0; k < qtd; k++) b.push({ id: n++, cor: cor, simbolo: s });
+          }
+        }
+        for (k = 0; k < 4; k++) {
+          b.push({ id: n++, cor: 'cor', simbolo: 'Wild' });
+          b.push({ id: n++, cor: 'cor', simbolo: 'Wild4' });
+        }
+        return b;
+      }
+
+      function embaralhar(arr) {
+        var a = arr.slice();
+        for (var i = a.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      }
+
+      function topo() { return pilhaDescartar[pilhaDescartar.length - 1]; }
+
+      function comprarCarta(mao) {
+        if (!pilhaComprar.length) {
+          if (pilhaDescartar.length <= 1) {
+            alertar('Sem cartas suficientes para continuar!', 'danger');
+            fim = true;
+            return null;
+          }
+          pilhaComprar = embaralhar(pilhaDescartar.slice(0, -1));
+          pilhaDescartar = [pilhaDescartar[pilhaDescartar.length - 1]];
+        }
+        var c = pilhaComprar.pop();
+        mao.push(c);
+        return c;
+      }
+
+      function podeJogar(carta) {
+        if (!carta) return false;
+        return carta.cor === corAtiva || carta.simbolo === topo().simbolo || carta.cor === 'cor';
+      }
+
+      function cartasJogaveis(mao) {
+        var r = [];
+        for (var i = 0; i < mao.length; i++) if (podeJogar(mao[i])) r.push(mao[i]);
+        return r;
+      }
+
+      function valorCarta(carta) {
+        if (carta.simbolo === 'Wild' || carta.simbolo === 'Wild4') return 50;
+        if (carta.simbolo === 'Skip' || carta.simbolo === 'Reverse' || carta.simbolo === 'Draw2') return 20;
+        return +carta.simbolo;
+      }
+
+      function isNumero(carta) { return CORES_NUMERO.indexOf(carta.simbolo) !== -1; }
+
+      function etiqueta(carta) {
+        switch (carta.simbolo) {
+          case 'Wild': return 'COR';
+          case 'Wild4': return '+4';
+          case 'Draw2': return '+2';
+          case 'Skip': return 'PULE';
+          case 'Reverse': return '\u21C4';
+          default: return '0' + carta.simbolo;
+        }
+      }
+
+      function cartaHTML(carta, tamanho, extra) {
+        var corner = '<span class="c-corner">' + etiqueta(carta) + '</span>';
+        var corpo;
+        if (carta.cor === 'cor') {
+          corpo = '<div class="c-dots">' +
+            '<span style="background:#c62828"></span>' +
+            '<span style="background:#fbc02d"></span>' +
+            '<span style="background:#2e7d32"></span>' +
+            '<span style="background:#1565c0"></span></div>';
+        } else {
+          corpo = '<div class="c-oval">' + etiqueta(carta) + '</div>';
+        }
+        return '<div class="carta-c c-' + carta.cor + ' ' + tamanho + '"' + (extra || '') + '>' + corner + corpo + '</div>';
+      }
+
+      function versoHTML(tamanho) { return '<div class="carta-verso ' + tamanho + '"></div>'; }
+
+      function nomeCurto(n) { return n.length > 12 ? n.slice(0, 11) + '\u2026' : n; }
+
+      function alertar(msg, tipo) {
+        var e = el('msg');
+        e.className = 'alert fade-in ' + (tipo === 'danger' ? 'alert-danger' : tipo === 'warning' ? 'alert-warning' : tipo === 'success' ? 'alert-success' : 'alert-info');
+        e.textContent = msg;
+        e.classList.remove('d-none');
+        clearTimeout(alertar._t);
+        alertar._t = setTimeout(function () { e.classList.add('d-none'); }, 3800);
+      }
+
+      function sacudir() {
+        var area = el('jogoArea');
+        area.classList.add('sacudir');
+        setTimeout(function () { area.classList.remove('sacudir'); }, 320);
+      }
+
+      // ---------- UI ----------
+      function atualizar() {
+        var visivel, oculto;
+        if (MODO === 'cpu') { visivel = 0; oculto = 1; }
+        else { visivel = indiceTurno; oculto = 1 - indiceTurno; }
+        var jv = jogadores[visivel];
+        var jo = jogadores[oculto];
+        var ativoHumano = !fim && !jogadores[indiceTurno].cpu;
+
+        // chips de cor ativa
+        var chips = '';
+        for (var i = 0; i < cores.length; i++) {
+          chips += '<span class="cor-' + cores[i] + (cores[i] === corAtiva ? ' ativa' : '') + '"></span>';
+        }
+        el('chipsCor').innerHTML = chips;
+
+        el('contComprar').textContent = pilhaComprar.length;
+        el('contComprar2').textContent = pilhaComprar.length;
+        el('topoDescarte').innerHTML = cartaHTML(topo(), 'tamanho-topo', '');
+
+        // painel superior (mão oculta)
+        el('nomeSup').textContent = jo.nome;
+        el('numSup').textContent = jo.mao.length + (jo.mao.length === 1 ? ' carta' : ' cartas');
+        var sup = '';
+        var vs = Math.min(jo.mao.length, 8);
+        for (var k = 0; k < vs; k++) sup += versoHTML('tamanho-mini');
+        if (!vs) sup = '<span class="text-muted small">Sem cartas</span>';
+        el('maoSup').innerHTML = sup;
+        el('unoSup').classList.toggle('d-none', !jo.gritado);
+
+        // painel inferior (mão visível)
+        el('nomeInf').textContent = jv.nome;
+        el('numInf').textContent = jv.mao.length + (jv.mao.length === 1 ? ' carta' : ' cartas');
+        var cartas = '';
+        for (var j2 = 0; j2 < jv.mao.length; j2++) {
+          cartas += cartaHTML(jv.mao[j2], 'tamanho-mao', ' data-i="' + j2 + '"');
+        }
+        el('maoInf').innerHTML = cartas;
+        var hs = el('maoInf').querySelectorAll('.carta-c');
+        for (var h = 0; h < hs.length; h++) {
+          var idx = +hs[h].getAttribute('data-i');
+          if (podeJogar(jv.mao[idx]) && ativoHumano) {
+            hs[h].classList.add('jogavel');
+            hs[h].addEventListener('click', function (e) {
+              e.stopPropagation();
+              playerPlay(+e.currentTarget.getAttribute('data-i'));
+            });
+            hs[h].addEventListener('mouseenter', function () { if (!fim) som('hover'); });
+          }
+        }
+        el('unoInf').classList.toggle('d-none', !jv.gritado);
+
+        el('maoInf').classList.toggle('inativo', !ativoHumano || (MODO === 'cpu' && indiceTurno !== 0));
+        el('pilhaComprar').style.pointerEvents = ativoHumano ? 'auto' : 'none';
+        el('pilhaComprar').style.opacity = ativoHumano ? '1' : '0.6';
+
+        // turno
+        var info = el('infoTurno');
+        var spin = el('spinnerTurno');
+        if (fim) {
+          info.textContent = 'Fim de jogo';
+          spin.classList.add('d-none');
+        } else if (MODO === 'cpu') {
+          if (indiceTurno === 0) { info.textContent = 'Sua vez!'; spin.classList.add('d-none'); }
+          else { info.textContent = 'Vez do computador'; spin.classList.remove('d-none'); }
+        } else {
+          info.textContent = 'Vez de ' + jogadores[indiceTurno].nome;
+          spin.classList.add('d-none');
+        }
+
+        // UNO automático do PC
+        if (MODO === 'cpu' && !jogadores[1].gritado && jogadores[1].mao.length === 1) {
+          jogadores[1].gritado = true;
+          setTimeout(function () { alertar('O computador gritou UNO!', 'warning'); som('uno'); }, 400);
+        }
+
+        // botões
+        var jogAtual = jogadores[indiceTurno];
+        el('btnPassar').classList.toggle('d-none', !ativoHumano || fim);
+        el('btnUNO').disabled = !(ativoHumano && jogAtual.mao.length === 1 && !jogAtual.gritado);
+
+        // placar e metadados
+        el('plc0').textContent = nomeCurto(jogadores[0].nome) + ': ' + jogadores[0].pontos;
+        el('plc1').textContent = nomeCurto(jogadores[1].nome) + ': ' + jogadores[1].pontos;
+        el('metaB').textContent = 'Meta ' + META;
+        el('unosB').textContent = 'UNO! ' + totalUnos;
+        el('rodB').textContent = rodada;
+        document.title = MODO === 'cpu' ? 'UNO vs Computador' : 'UNO 2 Jogadores';
+      }
+
+      // ---------- EFEITOS ----------
+      function efeitoDa(carta, pidx) {
+        var advIdx = 1 - pidx;
+        var nomeJ = jogadores[pidx].nome;
+        if (carta.simbolo === 'Skip' || carta.simbolo === 'Reverse') {
+          alertar(nomeJ + ' jogou ' + etiqueta(carta) + '! ' + jogadores[advIdx].nome + ' perde a vez.', 'info');
+          return true;
+        }
+        if (carta.simbolo === 'Draw2') {
+          for (var i = 0; i < 2; i++) comprarCarta(jogadores[advIdx].mao);
+          som('comprar');
+          alertar(nomeJ + ' jogou +2! ' + jogadores[advIdx].nome + ' compra 2 e perde a vez.', 'danger');
+          return true;
+        }
+        if (carta.simbolo === 'Wild4') {
+          for (var k = 0; k < 4; k++) comprarCarta(jogadores[advIdx].mao);
+          som('comprar');
+          alertar(nomeJ + ' jogou curinga +4! ' + jogadores[advIdx].nome + ' compra 4 e perde a vez.', 'danger');
+          return true;
+        }
+        return false;
+      }
+
+      function jogarCartaDe(mao, cartaId, corEscolhida, pidx) {
+        if (fim) return;
+        var i = -1;
+        for (var k = 0; k < mao.length; k++) if (mao[k].id === cartaId) { i = k; break; }
+        if (i === -1) return;
+        var carta = mao[i];
+        mao.splice(i, 1);
+
+        corAtiva = carta.cor === 'cor' ? corEscolhida : carta.cor;
+        pilhaDescartar.push(carta);
+
+        som('jogar');
+        if (carta.cor === 'cor') som('cor');
+
+        var replay = efeitoDa(carta, pidx);
+        atualizar();
+
+        if (mao.length === 0) { finalizar(pidx); return; }
+
+        if (!replay) indiceTurno = 1 - indiceTurno;
+        comprouNestaVez = false;
+        atualizar();
+
+        if (jogadores[indiceTurno].cpu) turnoCPU();
+      }
+
+      function playerPlay(i) {
+        if (fim || jogadores[indiceTurno].cpu) return;
+        var jog = jogadores[indiceTurno];
+        var mao = jog.mao;
+        if (typeof mao[i] === 'undefined') return;
+        var carta = mao[i];
+        if (!podeJogar(carta)) {
+          som('erro');
+          alertar('Essa carta não pode ser jogada agora!', 'danger');
+          sacudir();
+          return;
+        }
+        if (carta.cor === 'cor') {
+          pendente = { carta: carta, mao: mao, idx: indiceTurno };
+          modCor.show();
+          return;
+        }
+        jogarCartaDe(mao, carta.id, null, indiceTurno);
+      }
+
+      function aplicarCor(corEscolhida) {
+        modCor.hide();
+        if (!pendente) return;
+        var p = pendente;
+        pendente = null;
+        jogarCartaDe(p.mao, p.carta.id, corEscolhida, p.idx);
+      }
+
+      function acaoComprar() {
+        if (fim || jogadores[indiceTurno].cpu) return;
+        var jog = jogadores[indiceTurno];
+        var c = comprarCarta(jog.mao);
+        if (!c) { atualizar(); return; }
+        som('comprar');
+        comprouNestaVez = true;
+        atualizar();
+        if (podeJogar(c)) {
+          alertar(jog.nome + ' comprou uma carta que serve! Jogue-a ou clique em "Passar a vez".', 'info');
+        } else {
+          alertar(jog.nome + ' comprou uma carta que não serve. Vez passada.', 'warning');
+          passarVez(false);
+        }
+      }
+
+      function passarVez(aviso) {
+        if (fim || jogadores[indiceTurno].cpu) return;
+        var passou = jogadores[indiceTurno].nome;
+        if (aviso !== false) {
+          som('comprar');
+          alertar(passou + ' passou a vez.', 'info');
+        }
+        comprouNestaVez = false;
+        indiceTurno = 1 - indiceTurno;
+        atualizar();
+        if (jogadores[indiceTurno].cpu) turnoCPU();
+      }
+
+      function gritarUNO() {
+        if (fim || jogadores[indiceTurno].cpu) return;
+        var jog = jogadores[indiceTurno];
+        if (jog.mao.length !== 1 || jog.gritado) {
+          alertar('É preciso ter exatamente 1 carta para gritar UNO!', 'warning');
+          return;
+        }
+        jog.gritado = true;
+        totalUnos++;
+        som('uno');
+        atualizar();
+        alertar(jog.nome + ' gritou UNO!', 'success');
+      }
+
+      // ---------- IA DO COMPUTADOR ----------
+      function corPreferida(idx) {
+        var cont = { vermelho: 0, amarelo: 0, verde: 0, azul: 0 };
+        for (var i = 0; i < jogadores[idx].mao.length; i++) {
+          var c = jogadores[idx].mao[i];
+          if (c.cor !== 'cor') cont[c.cor]++;
+        }
+        var melhor = 'vermelho';
+        for (var co in cont) if (cont[co] > cont[melhor]) melhor = co;
+        return melhor;
+      }
+
+      function corAleatoria() { return cores[Math.floor(Math.random() * cores.length)]; }
+
+      function escolherCPU(playable, idx) {
+        if (DIFIC === 'facil') {
+          return playable[Math.floor(Math.random() * playable.length)];
+        }
+        var normais = [];
+        for (var n = 0; n < playable.length; n++) if (playable[n].cor !== 'cor') normais.push(playable[n]);
+
+        if (DIFIC === 'dificil') {
+          var oponente = jogadores[1 - idx];
+          var podeParar = [];
+          for (var i = 0; i < playable.length; i++) {
+            if (playable[i].simbolo === 'Skip' || playable[i].simbolo === 'Reverse' ||
+                playable[i].simbolo === 'Draw2' || playable[i].simbolo === 'Wild4') podeParar.push(playable[i]);
+          }
+          if (oponente.mao.length === 1 && podeParar.length) {
+            var forte = [];
+            for (var f = 0; f < podeParar.length; f++)
+              if (podeParar[f].simbolo === 'Draw2' || podeParar[f].simbolo === 'Wild4') forte.push(podeParar[f]);
+            return forte.length ? forte[Math.floor(Math.random() * forte.length)] : podeParar[0];
+          }
+          if (normais.length) {
+            var fav = corPreferida(idx);
+            var acoes = [];
+            for (var a = 0; a < normais.length; a++) if (!isNumero(normais[a])) acoes.push(normais[a]);
+            var acoesFav = [];
+            for (var af = 0; af < acoes.length; af++) if (acoes[af].cor === fav) acoesFav.push(acoes[af]);
+            if (acoesFav.length) return acoesFav[Math.floor(Math.random() * acoesFav.length)];
+            var numsFav = [];
+            for (var nf = 0; nf < normais.length; nf++) if (isNumero(normais[nf]) && normais[nf].cor === fav) numsFav.push(normais[nf]);
+            if (numsFav.length) return numsFav[Math.floor(Math.random() * numsFav.length)];
+            if (acoes.length) return acoes[0];
+            return normais[0];
+          }
+          var wilds = [];
+          for (var w = 0; w < playable.length; w++) if (playable[w].simbolo === 'Wild') wilds.push(playable[w]);
+          return wilds.length ? wilds[0] : playable[0];
+        }
+
+        // médio
+        if (normais.length) {
+          var favorita = corPreferida(idx);
+          var grupo = [];
+          for (var g = 0; g < normais.length; g++) if (normais[g].cor === favorita) grupo.push(normais[g]);
+          if (!grupo.length) grupo = normais;
+          return grupo[Math.floor(Math.random() * grupo.length)];
+        }
+        return playable[0];
+      }
+
+      function turnoCPU() {
+        if (fim || !jogadores[indiceTurno].cpu) return;
+        var idx = indiceTurno;
+        var mao = jogadores[idx].mao;
+        var atraso = DIFIC === 'facil' ? 1100 : DIFIC === 'medio' ? 850 : 650;
+        var probJogarComprada = DIFIC === 'facil' ? 0.35 : DIFIC === 'medio' ? 0.6 : 0.85;
+
+        setTimeout(function () {
+          if (fim || indiceTurno !== idx) return;
+          var playable = cartasJogaveis(mao);
+          if (playable.length) {
+            var carta = escolherCPU(playable, idx);
+            var cor = carta.cor === 'cor' ? (DIFIC === 'facil' ? corAleatoria() : corPreferida(idx)) : null;
+            jogarCartaDe(mao, carta.id, cor, idx);
+          } else {
+            som('comprar');
+            var c = comprarCarta(mao);
+            atualizar();
+            setTimeout(function () {
+              if (fim || indiceTurno !== idx) return;
+              if (c && podeJogar(c) && Math.random() < probJogarComprada) {
+                var cor2 = c.cor === 'cor' ? (DIFIC === 'facil' ? corAleatoria() : corPreferida(idx)) : null;
+                jogarCartaDe(mao, c.id, cor2, idx);
+              } else {
+                alertar(jogadores[idx].nome + ' não conseguiu jogar e passou a vez.', 'info');
+                indiceTurno = 1 - indiceTurno;
+                comprouNestaVez = false;
+                atualizar();
+                if (jogadores[indiceTurno].cpu) turnoCPU();
+              }
+            }, 650);
+          }
+        }, atraso);
+      }
+
+      // ---------- FIM / REINÍCIO ----------
+      function finalizar(pidx) {
+        fim = true;
+        var perdeu = 1 - pidx;
+        var pts = 0;
+        for (var i = 0; i < jogadores[perdeu].mao.length; i++) pts += valorCarta(jogadores[perdeu].mao[i]);
+        jogadores[pidx].pontos += pts;
+
+        var campeao = jogadores[pidx].pontos >= META;
+        var venc = jogadores[pidx];
+        var perd = jogadores[perdeu];
+        som((MODO === 'cpu' && pidx === 1) ? 'derrota' : 'vitoria');
+
+        historico.push({ rodada: rodada, vIdx: pidx, vencedor: venc.nome, pts: pts, placar: venc.pontos + ' x ' + perd.pontos });
+        if (historico.length > 60) historico.shift();
+
+        el('fimTitulo').textContent = campeao ? '\uD83C\uDFC6 Campeonato!' : (MODO === 'cpu' && pidx === 1 ? '\uD83D\uDE41 Derrota' : '\uD83C\uDF89 Vitória da rodada!');
+        var corpo = '<strong>' + venc.nome + '</strong> venceu a rodada';
+        if (venc.gritado) corpo += ' (gritando UNO!)';
+        corpo += ' e ganhou <strong>' + pts + ' pontos</strong> (cartas de ' + perd.nome + ').<br><br>' +
+          'Placar: <strong>' + venc.nome + ' ' + venc.pontos + '</strong> x <strong>' + perd.pontos + '</strong> ' + perd.nome + '.';
+        if (campeao) {
+          corpo += '<br><br><span class="text-warning">Chegou a ' + META + ' pontos e venceu o campeonato!</span>';
+        } else {
+          corpo += '<br><small class="text-muted">Faltam ' + Math.max(META - venc.pontos, META - perd.pontos, 0) + ' pontos para a meta.</small>';
+        }
+        el('fimResumo').innerHTML = corpo.replace(/\n/g, '<br>');
+        el('btnProxima').textContent = campeao ? 'Novo campeonato' : 'Nova rodada';
+        new bootstrap.Modal(el('modalFim'), { backdrop: 'static' }).show();
+        atualizar();
+      }
+
+      function montarJogadores() {
+        aplicarModo();
+      }
+
+      function renderHistorico() {
+        var corpo = el('histCorpo');
+        if (!historico.length) {
+          corpo.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Nenhuma rodada concluída ainda.</td></tr>';
+          return;
+        }
+        var linhas = '';
+        for (var i = historico.length - 1; i >= 0; i--) {
+          var r = historico[i];
+          linhas += '<tr>' +
+            '<td>' + r.rodada + '</td>' +
+            '<td><span class="badge ' + (r.vIdx === 0 ? 'text-bg-success' : 'text-bg-danger') + '">' + r.vencedor + '</span></td>' +
+            '<td>' + r.pts + '</td>' +
+            '<td>' + r.placar + '</td>' +
+            '</tr>';
+        }
+        corpo.innerHTML = linhas;
+      }
+
+      function reiniciar() {
+        var mf = bootstrap.Modal.getInstance(el('modalFim'));
+        if (mf) mf.hide();
+        if (jogadores[0].pontos >= META || jogadores[1].pontos >= META) {
+          jogadores[0].pontos = 0;
+          jogadores[1].pontos = 0;
+          historico = [];
+        }
+        pilhaComprar = embaralhar(novoBaralho());
+        pilhaDescartar = [];
+        jogadores[0].mao = [];
+        jogadores[1].mao = [];
+        jogadores[0].gritado = false;
+        jogadores[1].gritado = false;
+        fim = false;
+        comprouNestaVez = false;
+        pendente = null;
+        corAtiva = 'vermelho';
+        som('embaralhar');
+
+        for (var i = 0; i < 7; i++) {
+          comprarCarta(jogadores[0].mao);
+          comprarCarta(jogadores[1].mao);
+        }
+
+        pilhaDescartar = [];
+        var okTopo = false;
+        while (pilhaComprar.length && !okTopo) {
+          var c = pilhaComprar.pop();
+          if (c && (c.simbolo === 'Skip' || c.simbolo === 'Reverse' || c.simbolo === 'Draw2' ||
+                    c.simbolo === 'Wild' || c.simbolo === 'Wild4')) {
+            pilhaComprar.unshift(c);
+          } else {
+            pilhaDescartar.push(c);
+            okTopo = true;
+          }
+        }
+        corAtiva = pilhaDescartar[pilhaDescartar.length - 1].cor;
+
+        indiceTurno = Math.random() < 0.5 ? 0 : 1;
+        if (primeira) { primeira = false; } else { rodada++; }
+        atualizar();
+
+        if (MODO === 'cpu' && indiceTurno === 1) {
+          alertar('O computador começa!', 'info');
+          turnoCPU();
+        } else if (MODO === 'cpu') {
+          alertar('Você começa! Boa sorte.', 'success');
+        } else {
+          alertar('Começa: ' + jogadores[indiceTurno].nome + '.', 'info');
+        }
+      }
+
+      // ---------- CONFIG ----------
+      function aplicarDificVisible() {
+        el('dificWrap').style.display = MODO === 'local' ? 'none' : '';
+      }
+
+      function aplicarModo() {
+        if (MODO === 'local') {
+          jogadores[0].nome = 'Jogador 1';
+          jogadores[1].nome = 'Jogador 2';
+          jogadores[0].cpu = false;
+          jogadores[1].cpu = false;
+        } else {
+          jogadores[0].nome = 'Você';
+          jogadores[1].nome = 'Computador';
+          jogadores[0].cpu = false;
+          jogadores[1].cpu = true;
+        }
+        jogadores[0].pontos = 0;
+        jogadores[1].pontos = 0;
+        historico = [];
+        rodada = 1;
+        primeira = true;
+        aplicarDificVisible();
+        reiniciar();
+      }
+
+      function fecharDrop() {
+        try {
+          var d = bootstrap.Dropdown.getOrCreateInstance(el('ddToggle'));
+          d.hide();
+        } catch (e) {}
+      }
+
+      // ---------- INIT ----------
+      function gravarPendModInit() {
+        modCor = new bootstrap.Modal(el('modalCor'), { backdrop: 'static', keyboard: false });
+      }
+      gravarPendModInit();
+      aplicarModo();
+
+      el('btnSom').addEventListener('click', function () {
+        mutado = !mutado;
+        el('btnSom').textContent = mutado ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+        if (!mutado) som('jogar');
+        salvar();
+      });
+
+      el('selModo').addEventListener('change', function () { MODO = this.value; salvar(); aplicarModo(); fecharDrop(); });
+      el('selDific').addEventListener('change', function () { DIFIC = this.value; salvar(); fecharDrop(); reiniciar(); });
+      el('selMeta').addEventListener('change', function () { META = +this.value; salvar(); fecharDrop(); reiniciar(); });
+
+      el('pilhaComprar').addEventListener('click', function (e) { e.preventDefault(); acaoComprar(); });
+      el('btnPassar').addEventListener('click', passarVez);
+      el('btnUNO').addEventListener('click', gritarUNO);
+      el('btnProxima').addEventListener('click', reiniciar);
+      el('btnHist').addEventListener('click', renderHistorico);
+
+      el('btnSalvarNomes').addEventListener('click', function () {
+        var n1 = el('txtNome1').value.trim();
+        var n2 = el('txtNome2').value.trim();
+        if (n1) jogadores[0].nome = n1;
+        if (n2) jogadores[1].nome = n2;
+        atualizar();
+        bootstrap.Modal.getInstance(el('modalNomes')).hide();
+      });
+
+      el('btnNomes').addEventListener('click', function () {
+        el('txtNome1').value = jogadores[0].nome === 'Você' ? '' : jogadores[0].nome;
+        el('txtNome2').value = jogadores[1].nome === 'Computador' ? '' : jogadores[1].nome;
+      });
+
+      el('selModo').value = MODO;
+      el('selDific').value = DIFIC;
+      el('selMeta').value = String(META);
+      el('btnSom').textContent = mutado ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+
+      window.reiniciar = reiniciar;
+      window.aplicarCor = aplicarCor;
+    })();
+  </script>
+</body>
+</html>

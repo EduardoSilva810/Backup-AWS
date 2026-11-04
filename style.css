@@ -1,0 +1,1227 @@
+/* =========================
+   RESET
+========================= */
+
+
+* {
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    scroll-behavior:smooth;
+
+}
+
+
+body {
+
+    background:#0f172a;
+
+    color:white;
+
+    font-family:'Inter',sans-serif;
+
+    overflow-x:hidden;
+
+}
+
+
+
+
+/* =========================
+   CORES
+========================= */
+
+
+:root {
+
+
+    --azul:#38bdf8;
+
+    --roxo:#8b5cf6;
+
+    --cinza:#94a3b8;
+
+    --card:
+    rgba(255,255,255,0.07);
+
+    --borda:
+    rgba(255,255,255,0.15);
+
+
+}
+
+
+
+
+
+/* =========================
+   FUNDO
+========================= */
+
+
+#background {
+
+
+    position:fixed;
+
+    width:100%;
+
+    height:100%;
+
+    z-index:-1;
+
+
+
+    background:
+
+
+    radial-gradient(
+    circle at top,
+    rgba(56,189,248,.25),
+    transparent 35%
+    ),
+
+
+    radial-gradient(
+    circle at bottom,
+    rgba(139,92,246,.25),
+    transparent 40%
+    );
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+   MENU
+========================= */
+
+
+nav {
+
+
+    position:fixed;
+
+    top:0;
+
+    width:100%;
+
+    height:80px;
+
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+
+    padding:0 8%;
+
+
+
+    background:
+
+    rgba(15,23,42,.7);
+
+
+
+    backdrop-filter:
+
+    blur(15px);
+
+
+    border-bottom:
+
+    1px solid var(--borda);
+
+
+
+    z-index:1000;
+
+
+
+}
+
+
+
+
+nav h2 {
+
+    font-size:35px;
+
+}
+
+
+
+
+nav ul {
+
+
+    display:flex;
+
+    list-style:none;
+
+    gap:35px;
+
+
+}
+
+
+
+nav a {
+
+
+    color:white;
+
+    text-decoration:none;
+
+    transition:.3s;
+
+
+}
+
+
+
+nav a:hover {
+
+
+    color:var(--azul);
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+   SEÇÕES
+========================= */
+
+
+section {
+
+
+    min-height:100vh;
+
+    padding:
+
+    120px 8%;
+
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-direction:column;
+
+
+}
+
+
+
+section h2 {
+
+
+    font-size:40px;
+
+    margin-bottom:50px;
+
+
+    font-family:
+
+    'Playfair Display',
+    serif;
+
+
+}
+
+
+
+
+
+/* =========================
+   HERO
+========================= */
+
+
+.hero {
+
+
+    text-align:center;
+
+
+}
+
+
+
+.box {
+
+
+    max-width:800px;
+
+
+}
+
+
+
+.box h1 {
+
+
+    font-size:
+
+    clamp(40px,6vw,75px);
+
+
+    font-family:
+
+    'Playfair Display',
+    serif;
+
+
+    background:
+
+    linear-gradient(
+    90deg,
+    white,
+    var(--azul)
+    );
+
+
+    -webkit-background-clip:text;
+
+    color:transparent;
+
+
+}
+
+
+
+.box p {
+
+
+    margin-top:30px;
+
+    color:#cbd5e1;
+
+    font-size:22px;
+
+    min-height:40px;
+
+
+}
+
+
+
+button {
+
+
+    margin-top:40px;
+
+    padding:
+
+    15px 45px;
+
+
+    border:none;
+
+
+    border-radius:50px;
+
+
+    background:
+
+    linear-gradient(
+    45deg,
+    var(--azul),
+    var(--roxo)
+    );
+
+
+    color:white;
+
+
+    font-size:18px;
+
+
+    font-weight:bold;
+
+
+    cursor:pointer;
+
+
+    transition:.4s;
+
+
+}
+
+
+
+button:hover {
+
+
+    transform:
+
+    translateY(-5px)
+    scale(1.05);
+
+
+    box-shadow:
+
+    0 0 30px rgba(56,189,248,.5);
+
+
+}
+
+
+
+
+
+
+/* =========================
+   CARD SOBRE
+========================= */
+
+
+.card {
+
+
+    max-width:800px;
+
+
+    padding:50px;
+
+
+    background:
+
+    var(--card);
+
+
+    border:
+
+    1px solid var(--borda);
+
+
+    border-radius:25px;
+
+
+    backdrop-filter:
+
+    blur(20px);
+
+
+
+}
+
+
+
+.card p {
+
+
+    line-height:2;
+
+    color:#cbd5e1;
+
+    text-align:center;
+
+    margin-top:25px;
+
+    font-size:18px;
+
+
+}
+
+
+
+
+
+
+/* =========================
+   CARDS
+========================= */
+
+
+.cards {
+
+
+    display:grid;
+
+
+    grid-template-columns:
+
+    repeat(3,1fr);
+
+
+    gap:30px;
+
+
+}
+
+
+
+.item {
+
+
+    padding:40px 25px;
+
+
+    text-align:center;
+
+
+    background:
+
+    var(--card);
+
+
+    border:
+
+    1px solid var(--borda);
+
+
+    border-radius:25px;
+
+
+    transition:.4s;
+
+
+
+}
+
+
+
+.item span {
+
+
+    font-size:45px;
+
+
+}
+
+
+
+.item h3 {
+
+
+    margin:20px 0;
+
+
+}
+
+
+
+.item p {
+
+
+    color:#cbd5e1;
+
+    line-height:1.7;
+
+
+}
+
+
+
+.item:hover {
+
+
+    transform:
+
+    translateY(-12px);
+
+
+    border-color:
+
+    var(--azul);
+
+
+    box-shadow:
+
+    0 0 30px rgba(56,189,248,.25);
+
+
+}
+/* =========================
+   TERMINAL
+========================= */
+
+
+#terminal {
+
+    text-align:center;
+
+}
+
+
+#console {
+
+
+    width:80%;
+
+
+    min-height:300px;
+
+
+    background:#020617;
+
+
+    border:
+
+    1px solid rgba(56,189,248,.3);
+
+
+    border-radius:20px;
+
+
+    padding:40px;
+
+
+    color:#38f9a5;
+
+
+    font-family:
+
+    "Courier New",
+    monospace;
+
+
+    font-size:18px;
+
+
+    line-height:2;
+
+
+    text-align:left;
+
+
+    box-shadow:
+
+    0 0 40px rgba(56,189,248,.15);
+
+
+}
+
+
+
+
+/* =========================
+   GALERIA
+========================= */
+
+
+.gallery {
+
+
+    display:flex;
+
+
+    gap:30px;
+
+
+    justify-content:center;
+
+
+    flex-wrap:wrap;
+
+
+}
+
+
+
+.gallery img {
+
+
+    width:350px;
+
+
+    height:400px;
+
+
+    object-fit:cover;
+
+
+    border-radius:25px;
+
+
+    border:
+
+    2px solid transparent;
+
+
+    transition:.5s;
+
+
+}
+
+
+
+.gallery img:hover {
+
+
+    transform:
+
+    scale(1.05);
+
+
+    border-color:
+
+    var(--azul);
+
+
+    box-shadow:
+
+    0 0 35px rgba(56,189,248,.4);
+
+
+
+}
+
+
+
+
+
+
+/* =========================
+   FINAL
+========================= */
+
+
+.final-box {
+
+
+    max-width:850px;
+
+
+    text-align:center;
+
+
+    padding:60px;
+
+
+    background:
+
+    var(--card);
+
+
+    border:
+
+    1px solid var(--borda);
+
+
+    border-radius:30px;
+
+
+    backdrop-filter:
+
+    blur(20px);
+
+
+}
+
+
+
+.final-box h1 {
+
+
+    font-size:
+
+    clamp(35px,5vw,60px);
+
+
+    font-family:
+
+    'Playfair Display',
+    serif;
+
+
+    background:
+
+    linear-gradient(
+    90deg,
+    white,
+    var(--azul)
+    );
+
+
+    -webkit-background-clip:
+
+    text;
+
+
+    color:transparent;
+
+
+
+}
+
+
+
+.final-box p {
+
+
+    margin-top:30px;
+
+
+    color:#cbd5e1;
+
+
+    line-height:2;
+
+
+    font-size:20px;
+
+
+}
+
+
+
+
+
+
+/* =========================
+   FOOTER
+========================= */
+
+
+footer {
+
+
+    padding:40px;
+
+
+    text-align:center;
+
+
+    color:#94a3b8;
+
+
+    border-top:
+
+    1px solid rgba(255,255,255,.1);
+
+
+}
+
+
+
+
+
+
+/* =========================
+   ANIMAÇÕES
+========================= */
+
+
+.aparecer {
+
+
+    animation:
+
+    subir 1s ease;
+
+
+}
+
+
+
+@keyframes subir {
+
+
+    from {
+
+
+        opacity:0;
+
+
+        transform:
+
+        translateY(50px);
+
+
+    }
+
+
+
+    to {
+
+
+        opacity:1;
+
+
+        transform:
+
+        translateY(0);
+
+
+    }
+
+
+}
+
+
+
+
+
+
+@keyframes flutuar {
+
+
+    0% {
+
+
+        transform:
+
+        translateY(0);
+
+
+    }
+
+
+    50% {
+
+
+        transform:
+
+        translateY(-15px);
+
+
+    }
+
+
+    100% {
+
+
+        transform:
+
+        translateY(0);
+
+
+    }
+
+
+}
+
+
+
+.hero .box {
+
+
+    animation:
+
+    flutuar 5s infinite;
+
+
+}
+
+
+
+
+
+/* =========================
+   BRILHO NO CURSOR
+========================= */
+
+
+body::before {
+
+    content:"";
+
+    position:fixed;
+
+    width:300px;
+
+    height:300px;
+
+    border-radius:50%;
+
+
+    background:
+
+    radial-gradient(
+        circle,
+        rgba(56,189,248,.18),
+        transparent 70%
+    );
+
+
+    pointer-events:none;
+
+
+    left:0;
+
+    top:0;
+
+
+    transform:
+
+    translate(
+        calc(var(--x) - 150px),
+        calc(var(--y) - 150px)
+    );
+
+
+    transition:
+
+    transform .1s ease;
+
+
+    z-index:999;
+
+
+}
+
+
+
+
+
+
+/* =========================
+   RESPONSIVIDADE TABLET
+========================= */
+
+
+@media(max-width:900px){
+
+
+
+    nav {
+
+
+        padding:
+
+        0 5%;
+
+
+    }
+
+
+
+    .cards {
+
+
+        grid-template-columns:
+
+        1fr;
+
+
+    }
+
+
+
+    #console {
+
+
+        width:100%;
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+/* =========================
+   CELULAR
+========================= */
+
+
+@media(max-width:600px){
+
+
+    nav {
+
+
+        flex-direction:
+
+        column;
+
+
+        height:auto;
+
+
+        padding:20px;
+
+
+        gap:20px;
+
+
+    }
+
+
+
+    nav ul {
+
+
+        gap:15px;
+
+
+        flex-wrap:wrap;
+
+
+        justify-content:center;
+
+
+    }
+
+
+
+
+    section {
+
+
+        padding:
+
+        100px 20px;
+
+
+    }
+
+
+
+    .box h1 {
+
+
+        font-size:40px;
+
+
+    }
+
+
+
+
+    .box p {
+
+
+        font-size:18px;
+
+
+    }
+
+
+
+    .card {
+
+
+        padding:30px;
+
+
+    }
+
+
+
+    .item {
+
+
+        padding:30px 20px;
+
+
+    }
+
+
+
+    .gallery img {
+
+
+        width:100%;
+
+
+        height:350px;
+
+
+    }
+
+
+
+    .final-box {
+
+
+        padding:35px;
+
+
+    }
+
+
+
+    .final-box p {
+
+
+        font-size:17px;
+
+
+    }
+
+
+
+    button {
+
+
+        width:100%;
+
+
+    }
+
+
+}
+.whatsapp-btn {
+
+    display:inline-block;
+
+    margin-top:40px;
+
+    padding:15px 45px;
+
+    border-radius:50px;
+
+    text-decoration:none;
+
+    color:white;
+
+    font-weight:bold;
+
+    font-size:18px;
+
+
+    background:
+
+    linear-gradient(
+        45deg,
+        #22c55e,
+        #16a34a
+    );
+
+
+    transition:.4s;
+
+}
+
+
+.whatsapp-btn:hover {
+
+
+    transform:
+
+    translateY(-5px)
+    scale(1.05);
+
+
+    box-shadow:
+
+    0 0 30px rgba(34,197,94,.5);
+
+
+}

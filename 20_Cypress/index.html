@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cypress — Testes E2E | Programação Web II</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            padding: 2rem;
+            line-height: 1.7;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #69f0ae; font-size: 2rem; margin-bottom: 0.5rem; }
+        h2 { color: #82b1ff; margin: 2rem 0 1rem; }
+        h3 { color: #b39ddb; margin: 1.5rem 0 0.5rem; }
+        code {
+            background: #263238;
+            color: #ffcb6b;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        pre {
+            background: #263238;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        pre code { background: none; padding: 0; }
+        .badge {
+            display: inline-block;
+            background: #69f0ae;
+            color: #1a1a2e;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            margin-top: 0.3rem;
+        }
+        .highlight { color: #69f0ae; }
+        a { color: #82b1ff; }
+        ul { padding-left: 1.5rem; margin: 0.5rem 0; }
+        li { margin-bottom: 0.3rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Cypress — Testes End-to-End</h1>
+    <span class="badge">Capítulo 3</span>
+    <span class="badge" style="background:#82b1ff">Prova 3 — Q4, Q8</span>
+
+    <h2>O que é Cypress?</h2>
+    <p>
+        Cypress é uma ferramenta moderna para testes de interface (E2E).
+        Diferente dos testes unitários (Jest), que testam funções isoladas,
+        o Cypress abre um navegador real e simula interações do usuário:
+        cliques, digitação, navegação, etc.
+    </p>
+
+    <h2>Estrutura do Exemplo</h2>
+    <ul>
+        <li><code>src/index.html</code> — App de exemplo (login + lista de tarefas)</li>
+        <li><code>cypress/e2e/login.cy.js</code> — Testes de login</li>
+        <li><code>cypress/e2e/tarefas.cy.js</code> — Testes da lista de tarefas</li>
+        <li><code>cypress.config.js</code> — Configuração do Cypress</li>
+    </ul>
+
+    <h2>Como Executar</h2>
+
+    <h3>1. Instalar dependências</h3>
+    <pre><code>cd 20_Cypress
+npm install</code></pre>
+
+    <h3>2. Iniciar o servidor do app</h3>
+    <pre><code>npm run server</code></pre>
+    <p>O aplicativo estará disponível em <code>http://localhost:3000</code></p>
+
+    <h3>3. Executar os testes</h3>
+    <p><strong>Modo interativo (recomendado):</strong></p>
+    <pre><code>npm run test:open</code></pre>
+    <p>Isso abre o Test Runner do Cypress. Clique em "E2E Testing",
+    escolha um navegador e clique nos arquivos de teste.</p>
+
+    <p><strong>Modo headless (linha de comando):</strong></p>
+    <pre><code>npm run test</code></pre>
+    <p>Os resultados aparecem no terminal. Vídeos e screenshots são
+    salvos em <code>cypress/videos/</code> e <code>cypress/screenshots/</code>.</p>
+
+    <h2>Código dos Testes</h2>
+
+    <h3>login.cy.js</h3>
+    <pre><code>describe('Página de Login', () => {
+  beforeEach(() => {
+    cy.visit('/');
+    cy.get('[data-view="login"]').click();
+  });
+
+  it('deve exibir o formulário de login', () => {
+    cy.get('input[type="email"]').should('be.visible');
+    cy.get('input[type="password"]').should('be.visible');
+    cy.get('button[type="submit"]').should('contain', 'Entrar');
+  });
+
+  it('deve exibir erro para credenciais inválidas', () => {
+    cy.get('input[type="email"]').type('invalido@email.com');
+    cy.get('input[type="password"]').type('senha_errada');
+    cy.get('button[type="submit"]').click();
+    cy.contains('Credenciais inválidas').should('be.visible');
+  });
+
+  it('deve exibir dashboard ao fazer login com sucesso', () => {
+    cy.get('input[type="email"]').type('admin@email.com');
+    cy.get('input[type="password"]').type('123456');
+    cy.get('button[type="submit"]').click();
+    cy.contains('Bem-vindo, admin!').should('be.visible');
+  });
+});</code></pre>
+
+    <h3>tarefas.cy.js</h3>
+    <pre><code>describe('Lista de Tarefas', () => {
+  beforeEach(() => {
+    cy.visit('/');
+    cy.get('[data-view="tarefas"]').click();
+  });
+
+  it('deve permitir adicionar e remover tarefas', () => {
+    cy.get('#nova-tarefa').type('Estudar Cypress');
+    cy.get('#btn-adicionar').click();
+    cy.contains('Estudar Cypress').should('be.visible');
+
+    cy.get('input[type="checkbox"]').first().check();
+    cy.contains('Estudar Cypress').should('have.class', 'concluida');
+
+    cy.get('.remover').first().click();
+    cy.contains('Estudar Cypress').should('not.exist');
+  });
+});</code></pre>
+
+    <h2>Comandos Cypress Usados</h2>
+    <ul>
+        <li><code>cy.visit()</code> — Navega para uma URL</li>
+        <li><code>cy.get()</code> — Seleciona elementos por seletor CSS</li>
+        <li><code>cy.contains()</code> — Seleciona elemento pelo texto</li>
+        <li><code>.type()</code> — Digita em um campo de texto</li>
+        <li><code>.click()</code> — Clica em um elemento</li>
+        <li><code>.check()</code> — Marca um checkbox</li>
+        <li><code>.should()</code> — Faz asserções sobre o elemento</li>
+    </ul>
+
+    <h2>Dicas</h2>
+    <ul>
+        <li>Com Cypress, você pode depurar os testes visualmente — cada passo fica registrado no Test Runner</li>
+        <li>Use <code>cy.clock()</code> para controlar o tempo e <code>cy.intercept()</code> para simular APIs</li>
+        <li>Sempre prefira testar comportamentos visíveis ao usuário, não detalhes de implementação</li>
+        <li>Mantenha os testes independentes — cada teste deve funcionar isoladamente</li>
+    </ul>
+</div>
+</body>
+</html>

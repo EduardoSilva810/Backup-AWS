@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batalha Naval - Bootstrap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: radial-gradient(circle at 50% 0%, #16283e, #0a1018 70%); color: #eee; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100vh; }
+    .painel { background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.12); border-radius: 1rem; }
+    .bgrid { display: inline-grid; grid-template-columns: 1.8rem repeat(10, minmax(1.9rem, 2.4rem)); gap: 1px; background: rgba(255,255,255,.06); border-radius: .5rem; overflow: hidden; }
+    .blabel { display: flex; align-items: center; justify-content: center; font-size: .7rem; color: #778; user-select: none; aspect-ratio: 1; }
+    .bcelda { aspect-ratio: 1; background: rgba(0,55,120,.5); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .12s, transform .1s; position: relative; font-size: .95rem; }
+    .bcelda:hover { background: rgba(0,80,160,.7); transform: scale(1.06); z-index: 1; }
+    .bcelda.desativada { pointer-events: none; opacity: .55; }
+    .bcelda.navio.ship0 { background: rgba(76,175,80,.45); }
+    .bcelda.navio.ship1 { background: rgba(255,152,0,.45); }
+    .bcelda.navio.ship2 { background: rgba(33,150,243,.45); }
+    .bcelda.navio.ship3 { background: rgba(156,39,176,.45); }
+    .bcelda.navio.ship4 { background: rgba(244,67,54,.45); }
+    .bcelda[data-pv="ok"] { background: rgba(0,255,100,.3) !important; }
+    .bcelda[data-pv="no"] { background: rgba(255,0,0,.3) !important; }
+    .bcelda.tiro { cursor: default; pointer-events: none; }
+    .bcelda.tiro:hover { transform: none; }
+    .bcelda.tiro.erro { background: rgba(255,255,255,.15); }
+    .bcelda.tiro.acerto { background: rgba(255,50,50,.6); }
+    .bcelda.tiro.afundado { background: rgba(200,0,0,.8); outline: 2px solid #ffd54f; }
+    .stiro { font-weight: 700; line-height: 1; }
+    .bcelda.tiro.erro .stiro { color: rgba(255,255,255,.7); }
+    .bcelda.tiro.acerto .stiro { color: #fff; }
+    .bcelda.tiro.afundado .stiro { color: #ffd54f; }
+    .nmini { width: 1rem; height: 1rem; border-radius: 2px; border: 1px solid rgba(255,255,255,.2); }
+    .nmini.ok  { background: rgba(76,175,80,.6); }
+    .nmini.hit { background: rgba(255,50,50,.8); }
+    @keyframes sacudir { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .sacudir { animation: sacudir .3s; }
+    .fade-in { animation: aparecer .4s ease; }
+    @keyframes aparecer { from{opacity:0;transform:translateY(6px)} to{opacity:1} }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#">&#9875; Batalha Naval</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mNav"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="mNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item px-lg-2"><span class="badge text-bg-success" id="vcB">Vit: 0</span> <span class="badge text-bg-danger" id="derB">Der: 0</span></li>
+        <li class="nav-item"><button id="btnSom" class="btn btn-outline-warning btn-sm">&#128266;</button></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="ddT">Opções</a>
+          <div class="dropdown-menu dropdown-menu-end p-3" style="min-width:220px">
+            <label class="form-label small mb-0">Modo</label>
+            <select id="selModo" class="form-select form-select-sm mb-2">
+              <option value="cpu">Você vs Computador</option>
+              <option value="local">2 jogadores (mesmo teclado)</option>
+            </select>
+            <div id="dificWrap"><label class="form-label small mb-0">Dificuldade do PC</label>
+              <select id="selDific" class="form-select form-select-sm mb-2">
+                <option value="facil">Fácil</option>
+                <option value="medio">Médio</option>
+                <option value="dificil">Difícil</option>
+              </select>
+            </div>
+            <hr class="my-2">
+            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalNomes">Nomes dos jogadores...</button>
+            <button class="dropdown-item" onclick="window._reiniciar()">Nova partida</button>
+            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalInst">Como jogar</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-3" id="area">
+  <div id="msg" class="alert d-none" role="alert"></div>
+  <div class="text-center mb-2"><span class="badge text-bg-info" id="turnoInfo">Preparando...</span></div>
+
+  <div class="row g-3 justify-content-center">
+    <div class="col-12 col-lg-6 text-center order-2 order-lg-1">
+      <h6 class="text-muted mb-1">Água Inimiga</h6>
+      <div id="tabInimigo" class="bgrid mb-2"></div>
+      <div id="statusInimigo" class="text-start"></div>
+    </div>
+    <div class="col-12 col-lg-6 text-center order-1 order-lg-2">
+      <h6 class="text-muted mb-1">Sua Frota</h6>
+      <div id="tabMinha" class="bgrid mb-2"></div>
+      <div id="statusMinha" class="text-start"></div>
+    </div>
+  </div>
+
+  <div id="controlesPos" class="text-center mt-3" style="display:none">
+    <div class="painel d-inline-flex px-3 py-2 gap-2 flex-wrap align-items-center justify-content-center">
+      <span class="text-muted small">Posicione:</span>
+      <span class="badge text-bg-info" id="navioLabel">—</span>
+      <button class="btn btn-sm btn-outline-info" id="btnGirar">Girar (R)</button>
+      <button class="btn btn-sm btn-outline-warning" id="btnRandom">Aleatório</button>
+      <button class="btn btn-sm btn-outline-danger" id="btnLimpar">Limpar</button>
+      <button class="btn btn-sm btn-success d-none" id="btnIniciar">Iniciar batalha!</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAIS -->
+<div class="modal fade" id="modalNomes" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-bg-dark">
+  <div class="modal-header"><h5 class="modal-title">Nomes dos jogadores</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <div class="mb-3"><label class="form-label">Jogador 1</label><input type="text" id="txtN1" class="form-control" maxlength="14"></div>
+    <div class="mb-3"><label class="form-label">Jogador 2</label><input type="text" id="txtN2" class="form-control" maxlength="14"></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnSalvaNome">Salvar</button></div>
+</div></div></div>
+
+<div class="modal fade" id="modalInst" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content text-bg-dark">
+  <div class="modal-header"><h5 class="modal-title">Como jogar</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body"><ul>
+    <li><strong>Tabuleiro 10×10</strong> com 5 navios: Porta-aviões (5), Encouraçado (4), Cruzador (3), Submarino (3), Contratorpedeiro (2).</li>
+    <li><strong>Posicionamento:</strong> clique na sua frota para posicionar cada navio. Pressione <kbd>R</kbd> ou o botão Girar para alternar horizontal/vertical. "Aleatório" posiciona tudo automaticamente.</li>
+    <li><strong>Batalha:</strong> clique na água inimiga para disparar. Cada jogador dá um tiro por vez. Acerto = vermelho, água = branco, navio afundado = borda dourada.</li>
+    <li><strong>Modo 2 jogadores:</strong> revezam no mesmo teclado. Entre as fases de posicionamento aparece um aviso para passar o dispositivo.</li>
+    <li><strong>Dificuldade:</strong> Fácil = tiros aleatórios. Médio = após acertar, mira nas casas adjacentes. Difícil = caça com direção inteligente.</li>
+    <li><strong>Vitória:</strong> afunde todos os navios inimigos!</li>
+  </ul></div>
+</div></div></div>
+
+<div class="modal fade" id="modalPrep" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-bg-dark border-info">
+  <div class="modal-header"><h5 class="modal-title" id="prepTit">Prepare sua frota</h5></div>
+  <div class="modal-body text-center fs-5" id="prepMsg"></div>
+  <div class="modal-footer"><button class="btn btn-primary" id="btnPrepOk">Pronto!</button></div>
+</div></div></div>
+
+<div class="modal fade" id="modalFim" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-bg-dark border-warning">
+  <div class="modal-header"><h5 class="modal-title" id="fimTit">Fim</h5></div>
+  <div class="modal-body fs-5 text-center p-4" id="fimRes"></div>
+  <div class="modal-footer"><button class="btn btn-warning" id="btnProx">Nova partida</button></div>
+</div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+var FROTA=[{n:'Porta-aviões',t:5},{n:'Encouraçado',t:4},{n:'Cruzador',t:3},{n:'Submarino',t:3},{n:'Contratorpedeiro',t:2}];
+var LINHAS='ABCDEFGHIJ';
+var SHIP_BG=['rgba(76,175,80,.6)','rgba(255,152,0,.6)','rgba(33,150,243,.6)','rgba(156,39,176,.6)','rgba(244,67,54,.6)'];
+
+var MODO='cpu',DIFIC='medio',mutado=false;
+try{var c=JSON.parse(localStorage.getItem('batalhaConfig')||'{}');if(c.modo)MODO=c.modo;if(c.dific)DIFIC=c.dific;if(typeof c.mut==='boolean')mutado=c.mut;}catch(e){}
+
+var jogadores=[];
+var fase='posicionar',turno=0,empPos=0,navioAtual=0,orient='h';
+var podeJogar=false,partida=1,vitorias=0,derrotas=0;
+var hist=[];
+var modFimI=null;
+
+function el(id){return document.getElementById(id);}
+function salvar(){try{localStorage.setItem('batalhaConfig',JSON.stringify({modo:MODO,dific:DIFIC,mut:mutado}));}catch(e){}}
+
+/* ======== SONS (Web Audio) ======== */
+var ctx=null;
+function nota(f,i,d,t,v){var o=ctx.createOscillator(),g=ctx.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,ctx.currentTime+i);g.gain.exponentialRampToValueAtTime(v||.15,ctx.currentTime+i+.012);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+i+d);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+i);o.stop(ctx.currentTime+i+d+.03);}
+function som(n){if(mutado)return;try{if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();}catch(e){return;}var t=0;switch(n){
+case'agua':for(var i=0;i<5;i++)nota(200+Math.random()*300,t+i*.02,.04,'square',.04);break;
+case'acerto':nota(110,t,.15,'sawtooth',.18);nota(180,t+.05,.2,'square',.12);break;
+case'afundado':nota(80,t,.25,'sawtooth',.2);nota(120,t+.1,.3,'square',.15);nota(160,t+.2,.2,'sawtooth',.1);break;
+case'posicionar':nota(600,t,.06,'triangle',.1);nota(800,t+.04,.06,'triangle',.08);break;
+case'vitoria':[392,523,659,784].forEach(function(f,i){nota(f,t+i*.12,.2,'triangle',.16);});break;
+case'derrota':[330,262,196].forEach(function(f,i){nota(f,t+i*.16,.22,'sawtooth',.1);});break;
+case'embaralhar':for(var j=0;j<7;j++)nota(1300+Math.random()*1500,t+j*.03,.03,'square',.03);break;
+}}
+
+/* ======== LÓGICA DO TABULEIRO ======== */
+function criarJogador(nome,cpu){return{nome:nome,cpu:cpu,grid:new Array(100).fill(0),disparos:new Array(100).fill(0),navios:FROTA.map(function(f){return{n:f.n,t:f.t,pos:[],orient:'h',hits:[],afundado:false};})};}
+function celulasNavio(tam,pos,or){var r=Math.floor(pos/10),c=pos%10,cells=[];for(var i=0;i<tam;i++){var nr=or==='v'?r+i:r,nc=or==='h'?c+i:c;if(nr>=10||nc>=10)return null;cells.push(nr*10+nc);}return cells;}
+function podePosicionar(tam,pos,or,grid){var cells=celulasNavio(tam,pos,or);if(!cells)return false;for(var i=0;i<cells.length;i++)if(grid[cells[i]]!==0)return false;return true;}
+function posicionarNavio(jIdx,navIdx,pos){var j=jogadores[jIdx],f=FROTA[navIdx],or=orient,cells=celulasNavio(f.t,pos,or);if(!cells||!podePosicionar(f.t,pos,or,j.grid))return false;j.navios[navIdx]={n:f.n,t:f.t,pos:cells,orient:or,hits:[],afundado:false};cells.forEach(function(c){j.grid[c]=navIdx+1;});return true;}
+function limparNavios(jIdx){var j=jogadores[jIdx];j.grid.fill(0);j.disparos.fill(0);j.navios.forEach(function(n){n.pos=[];n.hits=[];n.afundado=false;});}
+function randomizarNavios(jIdx){limparNavios(jIdx);var j=jogadores[jIdx];FROTA.forEach(function(f,i){var ok=false,safe=0;while(!ok&&safe<2000){safe++;var o=Math.random()<.5?'h':'v';var p=Math.floor(Math.random()*100);if(podePosicionar(f.t,p,o,j.grid)){var cells=celulasNavio(f.t,p,o);j.navios[i]={n:f.n,t:f.t,pos:cells,orient:o,hits:[],afundado:false};cells.forEach(function(c){j.grid[c]=i+1;});ok=true;}}});}
+function naviosRestantes(jIdx){return jogadores[jIdx].navios.filter(function(n){return!n.afundado;}).length;}
+
+/* ======== PROCESSAR TIRO ======== */
+function processarTiro(atacanteIdx,pos){var defIdx=1-atacanteIdx,j=jogadores[defIdx],disp=jogadores[atacanteIdx].disparos;if(disp[pos]!==0)return null;if(j.grid[pos]===0){disp[pos]=-1;som('agua');return{acerto:false};}var sIdx=j.grid[pos]-1,nav=j.navios[sIdx];disp[pos]=sIdx+1;var li=nav.pos.indexOf(pos);if(nav.hits.indexOf(li)===-1)nav.hits.push(li);som('acerto');if(nav.hits.length>=nav.t){nav.afundado=true;som('afundado');return{acerto:true,afundado:true,nav:nav};}return{acerto:true};}
+function verificarVitoria(atacanteIdx){return jogadores[1-atacanteIdx].navios.every(function(n){return n.afundado;});}
+
+/* ======== CPU AI ======== */
+var ai={mode:'hunt',queue:[],hits:[]};
+function adjCelulas(pos){var r=Math.floor(pos/10),c=pos%10,out=[];if(r>0)out.push((r-1)*10+c);if(r<9)out.push((r+1)*10+c);if(c>0)out.push(r*10+c-1);if(c<9)out.push(r*10+c+1);return out;}
+function aiEscolher(){var disp=jogadores[turno].disparos;while(ai.queue.length>0){var t=ai.queue.shift();if(disp[t]===0)return t;}if(DIFIC==='facil'){var livre=[];for(var i=0;i<100;i++)if(disp[i]===0) livre.push(i);return livre.length?livre[Math.floor(Math.random()*livre.length)]:-1;}var livre=[];for(var i=0;i<100;i++)if(disp[i]===0) livre.push(i);if(!livre.length)return-1;if(DIFIC==='dificil'){var j=jogadores[turno],rest=j.navios.filter(function(n){return !n.afundado;});var best=-1,bv=-1;livre.forEach(function(p){var sc=0;adjCelulas(p).forEach(function(a){if(disp[a]>0)sc+=5;});rest.forEach(function(n){for(var r=0;r<10;r++)for(var c=0;c<=10-n.t;c++){var ok=true,found=false;for(var k=0;k<n.t;k++){var idx=r*10+c+k;if(idx===p){found=true;continue;}if(disp[idx]===-1||disp[idx]>0){ok=false;break;}}sc+=ok?(found?2:1):0;}for(var r2=0;r2<=10-n.t;r2++)for(var c2=0;c2<10;c2++){var ok2=true,found2=false;for(var k2=0;k2<n.t;k2++){var idx2=(r2+k2)*10+c2;if(idx2===p){found2=true;continue;}if(disp[idx2]===-1||disp[idx2]>0){ok2=false;break;}}sc+=ok2?(found2?2:1):0;}});if(sc>bv){bv=sc;best=p;}});return best!==-1?best:livre[Math.floor(Math.random()*livre.length)];}return livre[Math.floor(Math.random()*livre.length)];}
+function aiAcertou(pos){ai.hits.push(pos);ai.mode='target';var disp=jogadores[turno].disparos;var adj=adjCelulas(pos).filter(function(a){return disp[a]===0;});if(ai.hits.length>=2){var r0=Math.floor(ai.hits[0]/10),c0=ai.hits[0]%10,r1=Math.floor(pos/10),c1=pos%10;if(r0===r1){ai.queue=adj.filter(function(a){return Math.floor(a/10)===r0;});return;}if(c0===c1){ai.queue=adj.filter(function(a){return a%10===c0;});return;}}adj.forEach(function(a){if(ai.queue.indexOf(a)===-1)ai.queue.push(a);});}
+function aiAfundou(defIdx,navIdx){ai.hits=ai.hits.filter(function(h){return jogadores[defIdx].grid[h]!==navIdx+1;});if(ai.hits.length===0){ai.mode='hunt';ai.queue=[];}else{ai.queue=[];ai.hits.forEach(function(h){adjCelulas(h).forEach(function(a){if(jogadores[turno].disparos[a]===0&&ai.queue.indexOf(a)===-1)ai.queue.push(a);});});}}
+
+/* ======== RENDERING ======== */
+function renderTab(cid,jIdx,tipo){var container=el(cid),j=jogadores[jIdx],adv=jogadores[1-jIdx];var h='';h+='<div class="blabel"></div>';for(var c=1;c<=10;c++)h+='<div class="blabel">'+c+'</div>';for(var r=0;r<10;r++){h+='<div class="blabel">'+LINHAS[r]+'</div>';for(var c=0;c<10;c++){var idx=r*10+c,cls='bcelda',txt='';if(tipo==='frota'){if(j.grid[idx]>0)cls+=' navio ship'+(j.grid[idx]-1);if(adv.disparos[idx]===-1){cls+=' tiro erro';txt='●';}else if(adv.disparos[idx]>0){var ni=adv.disparos[idx]-1;cls+=j.navios[ni].afundado?' tiro afundado':' tiro acerto';txt='✕';}}else{if(j.disparos[idx]===-1){cls+=' tiro erro';txt='●';}else if(j.disparos[idx]>0){var ni2=j.disparos[idx]-1;cls+=adv.navios[ni2].afundado?' tiro afundado':' tiro acerto';txt='✕';}}h+='<div class="'+cls+'" data-i="'+idx+'"><span class="stiro">'+txt+'</span></div>';}}container.innerHTML=h;}
+function renderStatus(cid,jIdx){var j=jogadores[jIdx],h='';FROTA.forEach(function(f,i){var n=j.navios[i],hc=n.hits.length,sunk=n.afundado;var cls=sunk?'text-bg-danger':hc>0?'text-bg-warning':'text-bg-success';var txt=sunk?'Afundada':hc>0?hc+'/'+f.t:'Intacta';h+='<div class="d-flex align-items-center gap-2 mb-1 flex-wrap">';h+='<span class="badge" style="min-width:6rem;background:'+SHIP_BG[i]+'">'+f.n+' ('+f.t+')</span><div class="d-flex gap-1">';for(var k=0;k<f.t;k++){var isHit=sunk||n.hits.indexOf(k)!==-1;h+='<div class="nmini '+(isHit?'hit':'ok')+(isHit?'':'')+'" style="'+(!isHit?'background:'+SHIP_BG[i]:'')+'"></div>';}h+='</div><span class="badge '+cls+'">'+txt+'</span></div>';});document.getElementById(cid).innerHTML=h;}
+function atualizar(){var humIdx=fase==='posicionar'?empPos:turno;renderTab('tabMinha',humIdx,'frota');renderTab('tabInimigo',humIdx,'aguainimiga');renderStatus('statusMinha',humIdx);renderStatus('statusInimigo',1-humIdx);var info=el('turnoInfo');if(fase==='posicionar'){info.textContent='Posicione sua frota, '+jogadores[empPos].nome+'!';info.className='badge text-bg-warning';}else if(fase==='jogar'){var ic=MODO==='cpu'&&turno===1;info.textContent=ic?'PC jogando...':'Vez de '+jogadores[turno].nome;info.className='badge '+(ic?'text-bg-danger':'text-bg-success');}else{info.textContent='Fim de jogo';info.className='badge text-bg-secondary';}el('vcB').textContent='Vit: '+vitorias;el('derB').textContent='Der: '+derrotas;document.title='Batalha Naval vs '+(MODO==='cpu'?'PC':'2J');}
+function atualizarNavioLabel(){var s=el('navioLabel');if(navioAtual<FROTA.length){s.textContent=FROTA[navioAtual].n+' ('+FROTA[navioAtual].t+')';s.style.background=SHIP_BG[navioAtual];}else{s.textContent='Tudo posicionado!';s.className='badge text-bg-success';}}
+function alertar(msg,tipo){var e=el('msg');e.className='alert fade-in '+(tipo==='danger'?'alert-danger':tipo==='warning'?'alert-warning':tipo==='success'?'alert-success':'alert-info');e.textContent=msg;e.classList.remove('d-none');clearTimeout(alertar._t);alertar._t=setTimeout(function(){e.classList.add('d-none');},3500);}
+
+/* ======== PREVIEW ======== */
+var pvEls=[];
+function clearPv(){pvEls.forEach(function(c){c.removeAttribute('data-pv');});pvEls=[];}
+function showPv(pos){clearPv();if(fase!=='posicionar'||navioAtual>=FROTA.length)return;var cells=celulasNavio(FROTA[navioAtual].t,pos,orient);if(!cells)return;var ok=podePosicionar(FROTA[navioAtual].t,pos,orient,jogadores[empPos].grid);cells.forEach(function(c){var e=document.querySelector('#tabMinha [data-i="'+c+'"]');if(e){e.setAttribute('data-pv',ok?'ok':'no');pvEls.push(e);}});}
+
+/* ======== AÇÕES ======== */
+function handlePlacement(pos){if(fase!=='posicionar'||navioAtual>=FROTA.length)return;if(posicionarNavio(empPos,navioAtual,pos)){som('posicionar');navioAtual++;atualizarNavioLabel();if(navioAtual>=FROTA.length)el('btnIniciar').classList.remove('d-none');}else{som('agua');var a=el('area');a.classList.add('sacudir');setTimeout(function(){a.classList.remove('sacudir');},300);}}
+function handleShot(pos){if(fase!=='jogar'||!podeJogar)return;if(jogadores[turno].disparos[pos]!==0)return;podeJogar=false;var res=processarTiro(turno,pos);if(!res){podeJogar=true;return;}if(res.afundado)alertar(jogadores[turno].nome+': Afundou o '+res.nav.n+'!','success');else if(res.acerto)alertar(jogadores[turno].nome+': Acertou!','warning');else alertar(jogadores[turno].nome+': Água...','info');atualizar();if(verificarVitoria(turno)){fimDeJogo(turno);return;}turno=1-turno;atualizar();if(MODO==='cpu'&&turno===1){setTimeout(cpuTirar,700);}else{podeJogar=true;}}
+function cpuTirar(){if(fase!=='jogar'||turno!==1)return;var pos=aiEscolher();if(pos===-1||pos===null)return;var res=processarTiro(1,pos);if(!res){podeJogar=true;return;}if(res.afundado){alertar('PC afundou seu '+res.nav.n+'!','danger');aiAfundou(0,jogadores[0].navios.indexOf(res.nav));}else if(res.acerto){alertar('PC acertou!','warning');aiAcertou(pos);}else{alertar('PC: água...','info');}atualizar();if(verificarVitoria(1)){fimDeJogo(1);return;}turno=0;podeJogar=true;atualizar();}
+
+/* ======== INÍCIO / FIM ======== */
+function iniciarBatalha(){if(MODO==='local'&&empPos===0){empPos=1;navioAtual=0;limparNavios(1);el('controlesPos').style.display='';el('btnIniciar').classList.add('d-none');atualizarNavioLabel();var mp=new bootstrap.Modal(el('modalPrep'));el('prepTit').textContent='Vez do '+jogadores[1].nome;el('prepMsg').textContent='Prepare sua frota!';el('btnPrepOk').onclick=function(){mp.hide();atualizar();};mp.show();return;}if(MODO==='cpu')randomizarNavios(1);fase='jogar';turno=0;podeJogar=true;ai={mode:'hunt',queue:[],hits:[]};el('controlesPos').style.display='none';som('embaralhar');atualizar();}
+function fimDeJogo(vencedorIdx){podeJogar=false;fase='fim';var v=jogadores[vencedorIdx],d=jogadores[1-vencedorIdx];if((MODO==='cpu'&&vencedorIdx===0)||MODO==='local'){vitorias++;som('vitoria');}else{derrotas++;som('derrota');}hist.push({v:v.nome,d:d.nome});el('fimTit').textContent=(MODO==='cpu'&&vencedorIdx===1)?'Derrota!':'Vitória de '+v.nome+'!';var shpHTML='<div class="d-flex flex-wrap gap-3 justify-content-center mb-3">';jogadores.forEach(function(j,ji){shpHTML+='<div><strong class="'+(ji===vencedorIdx?'text-success':'text-danger')+'">'+j.nome+'</strong><br>';j.navios.forEach(function(n,i){shpHTML+='<span class="badge me-1" style="background:'+SHIP_BG[i]+'">'+n.n+(n.afundado?' ✕':' ✓')+'</span>';});shpHTML+='</div>';});shpHTML+='</div>';el('fimRes').innerHTML='Todos os navios de <strong>'+d.nome+'</strong> foram afundados.<br><br>'+shpHTML+'Placar: <strong>'+vitorias+'</strong> vitórias / <strong>'+derrotas+'</strong> derrotas.';el('btnProx').textContent='Nova partida';if(!modFimI)modFimI=new bootstrap.Modal(el('modalFim'),{backdrop:'static'});modFimI.show();atualizar();}
+
+function reiniciar(){if(modFimI){var inst=bootstrap.Modal.getInstance(el('modalFim'));if(inst)inst.hide();}fase='posicionar';turno=0;empPos=0;navioAtual=0;orient='h';podeJogar=false;partida++;limparNavios(0);limparNavios(1);el('controlesPos').style.display='';el('btnIniciar').classList.add('d-none');atualizarNavioLabel();atualizar();}
+
+/* ======== INIT ======== */
+function init(){jogadores=[criarJogador('Você',false),criarJogador('Computador',true)];
+
+el('btnSom').addEventListener('click',function(){mutado=!mutado;el('btnSom').textContent=mutado?'\uD83D\uDD07':'\uD83D\uDD0A';if(!mutado)som('acerto');salvar();});
+el('selModo').addEventListener('change',function(){MODO=this.value;salvar();reiniciar();try{bootstrap.Dropdown.getOrCreateInstance(el('ddT')).hide();}catch(e){}});
+el('selDific').addEventListener('change',function(){DIFIC=this.value;salvar();try{bootstrap.Dropdown.getOrCreateInstance(el('ddT')).hide();}catch(e){}});
+
+el('btnGirar').addEventListener('click',function(){orient=orient==='h'?'v':'h';clearPv();});
+el('btnRandom').addEventListener('click',function(){randomizarNavios(empPos);navioAtual=FROTA.length;som('embaralhar');el('btnIniciar').classList.remove('d-none');atualizarNavioLabel();atualizar();});
+el('btnLimpar').addEventListener('click',function(){limparNavios(empPos);navioAtual=0;el('btnIniciar').classList.add('d-none');atualizarNavioLabel();atualizar();});
+el('btnIniciar').addEventListener('click',iniciarBatalha);
+el('btnProx').addEventListener('click',reiniciar);
+
+document.addEventListener('keydown',function(e){if(e.key==='r'||e.key==='R'){if(fase==='posicionar'){orient=orient==='h'?'v':'h';clearPv();}}});
+
+el('tabMinha').addEventListener('click',function(e){var cell=e.target.closest('.bcelda');if(cell)handlePlacement(+cell.getAttribute('data-i'));});
+el('tabMinha').addEventListener('mouseover',function(e){var cell=e.target.closest('.bcelda');if(cell)showPv(+cell.getAttribute('data-i'));});
+el('tabMinha').addEventListener('mouseleave',clearPv);
+el('tabInimigo').addEventListener('click',function(e){var cell=e.target.closest('.bcelda');if(cell)handleShot(+cell.getAttribute('data-i'));});
+
+el('btnSalvaNome').addEventListener('click',function(){var n1=el('txtN1').value.trim(),n2=el('txtN2').value.trim();if(n1)jogadores[0].nome=n1;if(n2){jogadores[1].nome=n2;if(MODO==='cpu')jogadores[1].nome=n2||'Computador';}bootstrap.Modal.getInstance(el('modalNomes')).hide();atualizar();});
+el('modalNomes').addEventListener('show.bs.modal',function(){el('txtN1').value=jogadores[0].nome;el('txtN2').value=jogadores[1].nome;});
+
+el('selModo').value=MODO;el('selDific').value=DIFIC;
+el('selModo').addEventListener('change',function(){MODO=this.value;if(MODO==='cpu')jogadores[1].nome=el('txtN2').value.trim()||'Computador';else jogadores[1].nome=el('txtN2').value.trim()||'Jogador 2';});
+window._reiniciar=reiniciar;window._iniciar=iniciarBatalha;
+atualizarNavioLabel();atualizar();
+}
+init();
+})();
+</script>
+</body>
+</html>

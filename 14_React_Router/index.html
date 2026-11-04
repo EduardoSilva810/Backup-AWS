@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React Router - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container py-5">
+    <h1 class="text-3xl font-bold text-center mb-2">React Router DOM</h1>
+    <p class="text-center text-muted mb-4">
+      Navegação SPA com <code>react-router-dom</code> — rotas, links, parâmetros e navegação programática
+    </p>
+
+    <div id="root"></div>
+
+    <div class="alert alert-info mt-4">
+      <strong>Diferença:</strong> Diferente do exemplo 06 (hash routing puro), aqui usamos o React Router
+      com <code>BrowserRouter</code>, <code>Routes</code>, <code>Route</code> e <code>Link</code>.
+      O histórico do navegador é manipulado corretamente (botão Voltar funciona).
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- React Router via UMD (versão 6) -->
+  <script src="https://unpkg.com/react-router@6.20.0/umd/react-router.production.min.js"></script>
+  <script src="https://unpkg.com/react-router-dom@6.20.0/umd/react-router-dom.production.min.js"></script>
+
+  <script type="text/babel">
+    const { BrowserRouter, Routes, Route, Link, NavLink, useParams, useNavigate } = ReactRouterDOM;
+    const { useState, useEffect } = React;
+
+    // ─── Layout ─────────────────────────────────────────────────────────────
+    function Layout() {
+      return (
+        <div>
+          <nav className="navbar navbar-expand-lg navbar-dark bg-primary rounded-3 mb-4 px-3">
+            <Link className="navbar-brand fw-bold" to="/">React Router</Link>
+            <ul className="navbar-nav ms-auto">
+              <li className="nav-item"><NavLink className="nav-link" to="/">Início</NavLink></li>
+              <li className="nav-item"><NavLink className="nav-link" to="/sobre">Sobre</NavLink></li>
+              <li className="nav-item"><NavLink className="nav-link" to="/contato">Contato</NavLink></li>
+              <li className="nav-item"><NavLink className="nav-link" to="/produtos">Produtos</NavLink></li>
+            </ul>
+          </nav>
+
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/sobre" element={<Sobre />} />
+                <Route path="/contato" element={<Contato />} />
+                <Route path="/produtos" element={<Produtos />} />
+                <Route path="/produto/:id" element={<ProdutoDetalhe />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── Home ────────────────────────────────────────────────────────────────
+    function Home() {
+      const navigate = useNavigate();
+      return (
+        <div className="text-center">
+          <h2>Bem-vindo!</h2>
+          <p className="text-muted">Navegação com React Router DOM v6.</p>
+          <button className="btn btn-primary me-2" onClick={() => navigate('/sobre')}>
+            Ir para Sobre (navegação programática)
+          </button>
+          <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>
+            Voltar
+          </button>
+        </div>
+      );
+    }
+
+    // ─── Sobre ───────────────────────────────────────────────────────────────
+    function Sobre() {
+      return (
+        <div>
+          <h2>Sobre este projeto</h2>
+          <p>Exemplo de SPA usando <code>react-router-dom</code> com:</p>
+          <ul className="list-group list-group-flush">
+            <li className="list-group-item"><strong>BrowserRouter</strong> — gerencia o histórico</li>
+            <li className="list-group-item"><strong>Routes / Route</strong> — define as rotas</li>
+            <li className="list-group-item"><strong>Link / NavLink</strong> — navegação declarativa</li>
+            <li className="list-group-item"><strong>useNavigate</strong> — navegação programática</li>
+            <li className="list-group-item"><strong>useParams</strong> — parâmetros de URL</li>
+          </ul>
+        </div>
+      );
+    }
+
+    // ─── Contato ─────────────────────────────────────────────────────────────
+    function Contato() {
+      const [form, setForm] = useState({ nome: '', mensagem: '' });
+      const navigate = useNavigate();
+
+      function handleSubmit(e) {
+        e.preventDefault();
+        alert(`Mensagem enviada por ${form.nome}!`);
+        navigate('/');
+      }
+
+      return (
+        <div>
+          <h2>Contato</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label">Nome</label>
+              <input className="form-control" value={form.nome}
+                onChange={e => setForm({ ...form, nome: e.target.value })} required />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Mensagem</label>
+              <textarea className="form-control" rows="3" value={form.mensagem}
+                onChange={e => setForm({ ...form, mensagem: e.target.value })} required />
+            </div>
+            <button type="submit" className="btn btn-primary">Enviar e voltar ao início</button>
+          </form>
+        </div>
+      );
+    }
+
+    // ─── Produtos ────────────────────────────────────────────────────────────
+    function Produtos() {
+      const produtos = [
+        { id: 1, nome: 'Notebook', preco: 'R$ 4.500' },
+        { id: 2, nome: 'Mouse', preco: 'R$ 120' },
+        { id: 3, nome: 'Teclado', preco: 'R$ 250' },
+      ];
+
+      return (
+        <div>
+          <h2>Produtos</h2>
+          <p className="text-muted">Clique em um produto para ver detalhes (rota dinâmica).</p>
+          <div className="row g-3">
+            {produtos.map(p => (
+              <div key={p.id} className="col-md-4">
+                <div className="card h-100">
+                  <div className="card-body">
+                    <h5 className="card-title">{p.nome}</h5>
+                    <p className="card-text">{p.preco}</p>
+                    <Link to={`/produto/${p.id}`} className="btn btn-primary btn-sm">
+                      Ver detalhes
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // ─── Produto Detalhe (rota dinâmica) ─────────────────────────────────────
+    function ProdutoDetalhe() {
+      const { id } = useParams();
+      const produtos = {
+        1: { nome: 'Notebook', preco: 'R$ 4.500', desc: 'Notebook com 16GB RAM e SSD 512GB.' },
+        2: { nome: 'Mouse', preco: 'R$ 120', desc: 'Mouse óptico sem fio com 6 botões.' },
+        3: { nome: 'Teclado', preco: 'R$ 250', desc: 'Teclado mecânico RGB com switches azuis.' },
+      };
+      const produto = produtos[id];
+
+      return (
+        <div>
+          {produto ? (
+            <div>
+              <h2>{produto.nome}</h2>
+              <p className="text-success fw-bold fs-4">{produto.preco}</p>
+              <p>{produto.desc}</p>
+              <Link to="/produtos" className="btn btn-outline-secondary">Voltar</Link>
+            </div>
+          ) : (
+            <div className="alert alert-danger">
+              Produto não encontrado. <Link to="/produtos">Ver todos os produtos</Link>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ─── 404 ─────────────────────────────────────────────────────────────────
+    function NotFound() {
+      return (
+        <div className="text-center">
+          <h2 className="text-danger">404</h2>
+          <p>Página não encontrada.</p>
+        </div>
+      );
+    }
+
+    // ─── Renderizar ──────────────────────────────────────────────────────────
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <BrowserRouter>
+        <Layout />
+      </BrowserRouter>
+    );
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

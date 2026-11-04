@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind CSS CRUD - Card Layout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <!-- Cabeçalho -->
+        <header class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                    🚀 TaskMaster
+                </h1>
+                <p class="text-sm text-slate-400 mt-1">Gerenciador de tarefas local</p>
+            </div>
+            <span id="taskCount" class="bg-blue-500/10 text-blue-400 text-xs font-semibold px-3 py-1 rounded-full border border-blue-500/20">
+                0 Tarefas
+            </span>
+        </header>
+
+        <!-- Formulário de Criação/Edição -->
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700/50 shadow-xl mb-8">
+            <h2 id="formTitle" class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">Nova Tarefa</h2>
+            <form id="taskForm" class="space-y-4">
+                <input type="hidden" id="taskId">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Input Título -->
+                    <div class="md:col-span-2">
+                        <input type="text" id="taskTitle" required placeholder="O que precisa ser feito?" 
+                            class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition text-sm">
+                    </div>
+                    <!-- Select Prioridade -->
+                    <div>
+                        <select id="taskPriority" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition text-sm">
+                            <option value="Baixa">🟢 Baixa</option>
+                            <option value="Média">🟡 Média</option>
+                            <option value="Alta">🔴 Alta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" id="cancelBtn" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="submitBtn" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 px-5 py-2 rounded-lg text-sm font-semibold tracking-wide transition shadow-lg shadow-cyan-500/20">
+                        Salvar Tarefa
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de Cards (Read / Delete / Update) -->
+        <div id="taskList" class="grid grid-cols-1 gap-3">
+            <!-- Os cards serão injetados aqui via JS -->
+        </div>
+    </div>
+
+    <script>
+        // Carrega do LocalStorage ou inicia vazio
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [
+            { id: 1, title: 'Finalizar protótipo do dashboard', priority: 'Alta' },
+            { id: 2, title: 'Revisar PRs pendentes', priority: 'Média' }
+        ];
+
+        const taskForm = document.getElementById('taskForm');
+        const taskIdInput = document.getElementById('taskId');
+        const taskTitleInput = document.getElementById('taskTitle');
+        const taskPrioritySelect = document.getElementById('taskPriority');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const formTitle = document.getElementById('formTitle');
+        const taskList = document.getElementById('taskList');
+        const taskCount = document.getElementById('taskCount');
+
+        // Salvar no LocalStorage e renderizar
+        function dataSync() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        // Retorna a cor da tag baseado na prioridade
+        function getPriorityBadge(priority) {
+            const classes = {
+                'Alta': 'bg-red-500/10 text-red-400 border-red-500/20',
+                'Média': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+                'Baixa': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+            };
+            return `<span class="text-xs font-medium px-2.5 py-0.5 rounded-full border ${classes[priority]}">${priority}</span>`;
+        }
+
+        // Renderizar Lista (Read)
+        function renderTasks() {
+            taskList.innerHTML = '';
+            taskCount.innerText = `${tasks.length} ${tasks.length === 1 ? 'Tarefa' : 'Tarefas'}`;
+
+            if (tasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="text-center py-12 border-2 border-dashed border-slate-800 rounded-xl">
+                        <p class="text-slate-500 text-sm">Nenhuma tarefa pendente por aqui. 🎉</p>
+                    </div>
+                `;
+                return;
+            }
+
+            tasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-800/60 border border-slate-800 rounded-xl p-4 flex items-center justify-between hover:border-slate-700 transition group shadow-sm";
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                        ${getPriorityBadge(task.priority)}
+                        <span class="text-slate-200 font-medium text-sm">${task.title}</span>
+                    </div>
+                    <div class="flex items-center gap-3 ml-4 opacity-80 group-hover:opacity-100 transition">
+                        <button onclick="editTask(${task.id})" class="text-slate-400 hover:text-cyan-400 text-sm transition">Editar</button>
+                        <button onclick="deleteTask(${task.id})" class="text-slate-400 hover:text-red-400 text-sm transition">Excluir</button>
+                    </div>
+                `;
+                taskList.appendChild(card);
+            });
+        }
+
+        // Criar / Atualizar (Create / Update)
+        taskForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = taskIdInput.value;
+            const title = taskTitleInput.value.trim();
+            const priority = taskPrioritySelect.value;
+
+            if (id) {
+                // Update
+                tasks = tasks.map(t => t.id == id ? { id: Number(id), title, priority } : t);
+                resetForm();
+            } else {
+                // Create
+                tasks.push({ id: Date.now(), title, priority });
+            }
+
+            taskForm.reset();
+            dataSync();
+        });
+
+        // Preparar edição (Update)
+        window.editTask = function(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                taskIdInput.value = task.id;
+                taskTitleInput.value = task.title;
+                taskPrioritySelect.value = task.priority;
+                
+                formTitle.innerText = "Editar Tarefa";
+                submitBtn.innerText = "Salvar Alterações";
+                submitBtn.className = "bg-amber-500 hover:bg-amber-600 text-slate-950 px-5 py-2 rounded-lg text-sm font-semibold tracking-wide transition shadow-lg shadow-amber-500/20";
+                cancelBtn.classList.remove('hidden');
+            }
+        }
+
+        // Deletar (Delete)
+        window.deleteTask = function(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            if(taskIdInput.value == id) resetForm();
+            dataSync();
+        }
+
+        // Cancelar Edição
+        cancelBtn.addEventListener('click', resetForm);
+
+        function resetForm() {
+            taskForm.reset();
+            taskIdInput.value = '';
+            formTitle.innerText = "Nova Tarefa";
+            submitBtn.innerText = "Salvar Tarefa";
+            submitBtn.className = "bg-cyan-500 hover:bg-cyan-600 text-slate-950 px-5 py-2 rounded-lg text-sm font-semibold tracking-wide transition shadow-lg shadow-cyan-500/20";
+            cancelBtn.classList.add('hidden');
+        }
+
+        // Inicialização
+        renderTasks();
+    </script>
+</body>
+</html>

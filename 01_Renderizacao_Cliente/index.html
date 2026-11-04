@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renderização Cliente vs Servidor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7fafc; padding: 30px; color: #1a202c; }
+        h1 { color: #0a3d6b; text-align: center; margin-bottom: 8px; }
+        .sub { text-align: center; color: #4a5568; margin-bottom: 30px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .row { display: flex; gap: 24px; flex-wrap: wrap; }
+        .col { flex: 1; min-width: 300px; background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+        .col h2 { color: #0a3d6b; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 3px solid #0a3d6b; }
+        .exemplo { background: #f7fafc; border-radius: 8px; padding: 16px; margin-top: 16px; }
+        .exemplo h3 { color: #2d3748; margin-bottom: 8px; font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; }
+        .exemplo p { margin: 4px 0; }
+        button { background: #0a3d6b; color: #fff; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 1em; margin-top: 12px; }
+        button:hover { background: #1a5280; }
+        .info { margin: 24px 0; padding: 16px; background: #ebf8ff; border-left: 4px solid #0a3d6b; border-radius: 4px; }
+        .info strong { color: #0a3d6b; }
+        #output-server, #output-client { background: #1a202c; color: #a0f0a0; padding: 12px; border-radius: 6px; font-family: monospace; margin-top: 12px; min-height: 60px; font-size: 0.9em; }
+        #output-client img { max-width: 100%; border-radius: 4px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Renderização: Servidor vs Cliente</h1>
+        <p class="sub">Entendendo a diferença entre server-side rendering (SSR) e client-side rendering (CSR)</p>
+
+        <div class="info">
+            <strong>Renderização no lado do servidor (SSR):</strong> O servidor processa o HTML e envia a página pronta.<br>
+            <strong>Renderização no lado do cliente (CSR):</strong> O navegador recebe um HTML mínimo e o JavaScript constrói a interface.
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h2>Simulação SSR</h2>
+                <p>O HTML já vem completo do servidor. Clique no botão para "simular" o carregamento.</p>
+                <div class="exemplo">
+                    <h3>Página carregada:</h3>
+                    <div id="output-server">
+                        &lt;html&gt;<br>
+                        &nbsp;&nbsp;&lt;body&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt;Olá, visitante!&lt;/h1&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Bem-vindo ao site.&lt;/p&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;ul&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;Item 1&lt;/li&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;Item 2&lt;/li&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;Item 3&lt;/li&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/ul&gt;<br>
+                        &nbsp;&nbsp;&lt;/body&gt;<br>
+                        &lt;/html&gt;
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <h2>Simulação CSR</h2>
+                <p>O HTML é mínimo. O JavaScript constrói a interface após o carregamento.</p>
+                <div class="exemplo">
+                    <h3>HTML inicial recebido:</h3>
+                    <div style="background:#1a202c;color:#f0a0a0;padding:12px;border-radius:6px;font-family:monospace;font-size:0.9em;">
+                        &lt;html&gt;<br>
+                        &nbsp;&nbsp;&lt;body&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div id="root"&gt;&lt;/div&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;script src="app.js"&gt;&lt;/script&gt;<br>
+                        &nbsp;&nbsp;&lt;/body&gt;<br>
+                        &lt;/html&gt;
+                    </div>
+                    <button onclick="renderizarCSR()">Simular execução do JavaScript</button>
+                    <h3 style="margin-top:16px;">Após JS executar:</h3>
+                    <div id="output-client">
+                        Aguardando clique no botão...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top:24px;">
+            <div class="col">
+                <h2>Exemplo com React (CDN)</h2>
+                <p>React constrói a interface dinamicamente. Veja o resultado abaixo:</p>
+                <div id="react-root"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script>
+        function renderizarCSR() {
+            const dados = [
+                { id: 1, nome: "Ana Silva", email: "ana@email.com" },
+                { id: 2, nome: "Carlos Souza", email: "carlos@email.com" },
+                { id: 3, nome: "Beatriz Oliveira", email: "bia@email.com" }
+            ];
+
+            let html = '<div style="color:#a0f0a0;">';
+            html += '<h3 style="color:#fff;">Lista de Usuários Carregada:</h3>';
+            html += '<ul>';
+            dados.forEach(d => {
+                html += `<li><strong>${d.nome}</strong> - ${d.email}</li>`;
+            });
+            html += '</ul></div>';
+
+            document.getElementById('output-client').innerHTML = html;
+        }
+
+        // Exemplo React
+        function App() {
+            const [produtos] = React.useState([
+                { id: 1, nome: "Notebook", preco: "R$ 3.999,00" },
+                { id: 2, nome: "Mouse", preco: "R$ 89,90" },
+                { id: 3, nome: "Teclado", preco: "R$ 149,90" }
+            ]);
+
+            return React.createElement('div', { style: { background: '#f7fafc', padding: '16px', borderRadius: '8px' } },
+                React.createElement('h3', { style: { color: '#2d3748', marginBottom: '12px' } }, 'Produtos (renderizados via React):'),
+                React.createElement('table', {
+                    style: { width: '100%', borderCollapse: 'collapse' }
+                },
+                    React.createElement('thead', null,
+                        React.createElement('tr', null,
+                            React.createElement('th', { style: { textAlign: 'left', padding: '8px', borderBottom: '2px solid #0a3d6b', color: '#0a3d6b' } }, 'Nome'),
+                            React.createElement('th', { style: { textAlign: 'left', padding: '8px', borderBottom: '2px solid #0a3d6b', color: '#0a3d6b' } }, 'Preço')
+                        )
+                    ),
+                    React.createElement('tbody', null,
+                        produtos.map(p =>
+                            React.createElement('tr', { key: p.id },
+                                React.createElement('td', { style: { padding: '8px', borderBottom: '1px solid #e2e8f0' } }, p.nome),
+                                React.createElement('td', { style: { padding: '8px', borderBottom: '1px solid #e2e8f0' } }, p.preco)
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('react-root')).render(React.createElement(App));
+    </script>
+</body>
+</html>

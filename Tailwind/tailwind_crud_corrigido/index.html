@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Tailwind + JavaScript</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+  <div id="toast" class="toast hidden"></div>
+
+  <section id="authView" class="min-h-screen grid lg:grid-cols-2">
+    <div class="hidden lg:flex bg-slate-900 text-white p-12 flex-col justify-between">
+      <div><span class="text-blue-400 font-bold">EXEMPLO DIDATICO</span><h1 class="text-5xl font-black mt-4">Login e CRUD sem banco de dados</h1><p class="text-slate-300 mt-5 text-lg">Aplicacao de pagina unica. Cadastro, login e registros ficam armazenados no navegador.</p></div>
+      <div class="rounded-xl bg-slate-800 p-5"><p class="font-semibold">Acesso inicial</p><p class="text-slate-300 mt-2">E-mail: admin@admin.com</p><p class="text-slate-300">Senha: 123456</p></div>
+    </div>
+
+    <div class="flex items-center justify-center p-6">
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        <div class="flex gap-2 rounded-xl bg-slate-100 p-1 mb-7">
+          <button id="showLogin" class="tab active">Login</button>
+          <button id="showRegister" class="tab">Cadastro</button>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+          <div><h2 class="text-3xl font-black">Entrar</h2><p class="text-slate-500 mt-1">Use o administrador ou uma conta cadastrada.</p></div>
+          <div><label for="loginEmail">E-mail</label><input id="loginEmail" class="input" type="email" autocomplete="username" required value="admin@admin.com"></div>
+          <div><label for="loginPassword">Senha</label><input id="loginPassword" class="input" type="password" autocomplete="current-password" required value="123456"></div>
+          <button class="btn-primary w-full" type="submit">Entrar</button>
+          <p id="loginMessage" class="message"></p>
+        </form>
+
+        <form id="registerForm" class="space-y-4 hidden">
+          <div><h2 class="text-3xl font-black">Criar conta</h2><p class="text-slate-500 mt-1">O usuario sera salvo somente neste navegador.</p></div>
+          <div><label for="registerName">Nome</label><input id="registerName" class="input" minlength="3" required></div>
+          <div><label for="registerEmail">E-mail</label><input id="registerEmail" class="input" type="email" required></div>
+          <div><label for="registerPassword">Senha</label><input id="registerPassword" class="input" type="password" minlength="4" required></div>
+          <div><label for="registerConfirm">Confirmar senha</label><input id="registerConfirm" class="input" type="password" minlength="4" required></div>
+          <button class="btn-primary w-full" type="submit">Cadastrar</button>
+          <p id="registerMessage" class="message"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="appView" class="hidden min-h-screen">
+    <header class="bg-slate-900 text-white shadow">
+      <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between gap-4">
+        <div><h1 class="text-xl font-bold">Cadastro de alunos</h1><p id="welcome" class="text-sm text-slate-300"></p></div>
+        <button id="logoutButton" class="btn-danger">Sair</button>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-5 grid xl:grid-cols-[380px_1fr] gap-6">
+      <section class="panel h-fit">
+        <h2 id="formTitle" class="text-2xl font-black mb-5">Novo aluno</h2>
+        <form id="studentForm" class="space-y-4">
+          <input id="studentId" type="hidden">
+          <div><label for="studentName">Nome</label><input id="studentName" class="input" minlength="3" required></div>
+          <div><label for="studentRa">RA</label><input id="studentRa" class="input" required></div>
+          <div><label for="studentEmail">E-mail</label><input id="studentEmail" class="input" type="email" required></div>
+          <div><label for="studentCourse">Curso</label><select id="studentCourse" class="input"><option>ADS</option><option>DSM</option><option>Gestao Empresarial</option><option>Outro</option></select></div>
+          <div class="flex gap-2"><button class="btn-primary flex-1" type="submit">Salvar</button><button id="cancelEdit" class="btn-secondary hidden" type="button">Cancelar</button></div>
+          <p id="studentMessage" class="message"></p>
+        </form>
+      </section>
+
+      <section class="panel overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
+          <div><h2 class="text-2xl font-black">Alunos cadastrados</h2><p id="counter" class="text-sm text-slate-500 mt-1"></p></div>
+          <input id="search" class="input md:max-w-sm" placeholder="Buscar por nome, RA, e-mail ou curso">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left"><thead><tr><th>Nome</th><th>RA</th><th>Curso</th><th>Acoes</th></tr></thead><tbody id="studentRows"></tbody></table>
+          <p id="emptyState" class="hidden text-center text-slate-500 py-12">Nenhum registro encontrado.</p>
+        </div>
+        <button id="clearStudents" class="text-red-600 hover:underline text-sm mt-5">Apagar todos os alunos</button>
+      </section>
+    </main>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

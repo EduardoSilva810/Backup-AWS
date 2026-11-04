@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build &amp; Release - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container py-5">
+    <h1 class="text-center mb-2">Build e Releases com Vite</h1>
+    <p class="text-center text-muted mb-4">
+      Processo de build, otimizações e deploy de aplicações React
+    </p>
+
+    <div class="row g-4">
+      <!-- Estrutura -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">Estrutura do Projeto</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded small"><code>17_Build_Releases/
+├── index.html          # HTML raiz
+├── package.json        # Dependências e scripts
+├── vite.config.js      # Configuração do Vite
+├── public/             # Assets estáticos
+└── src/
+    ├── main.jsx        # Entry point
+    └── App.jsx         # Componente principal</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comandos -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-success text-white">
+            <h2 class="h5 mb-0">Comandos</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded small"><code># Desenvolvimento (servidor local)
+npm run dev
+
+# Build de produção (gera pasta dist/)
+npm run build
+
+# Preview do build localmente
+npm run preview</code></pre>
+            <p class="mt-3 mb-0">Após o build, a pasta <code>dist/</code> conterá:</p>
+            <ul class="mb-0">
+              <li><code>index.html</code> — HTML final</li>
+              <li><code>assets/index-abc123.js</code> — JS minificado</li>
+              <li><code>assets/index-xyz456.css</code> — CSS minificado</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- vite.config.js explicado -->
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-warning text-dark">
+            <h2 class="h5 mb-0">Configuração do Vite (vite.config.js)</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded"><code>import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    outDir: 'dist',          // Pasta de saída
+    minify: 'esbuild',       // Minificador (esbuild é mais rápido)
+    sourcemap: false,         // Sem mapas de origem em produção
+    rollupOptions: {
+      output: {
+        manualChunks: {      // Separa bibliotecas em chunk próprio
+          vendor: ['react', 'react-dom'],
+        },
+      },
+    },
+  },
+  server: {
+    port: 3000,              // Porta do servidor dev
+    open: true,               // Abre navegador automaticamente
+  },
+});</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline de release -->
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-info text-white">
+            <h2 class="h5 mb-0">Processo de Release</h2>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <div class="text-center p-3 border rounded bg-light h-100">
+                  <span class="badge bg-primary fs-6 mb-2">1</span>
+                  <h6>Desenvolvimento</h6>
+                  <small class="text-muted">Código no branch <code>feature/*</code></small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 border rounded bg-light h-100">
+                  <span class="badge bg-primary fs-6 mb-2">2</span>
+                  <h6>CI (Testes)</h6>
+                  <small class="text-muted">Testes automáticos (GitHub Actions)</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 border rounded bg-light h-100">
+                  <span class="badge bg-primary fs-6 mb-2">3</span>
+                  <h6>Build</h6>
+                  <small class="text-muted"><code>npm run build</code> → <code>dist/</code></small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 border rounded bg-light h-100">
+                  <span class="badge bg-primary fs-6 mb-2">4</span>
+                  <h6>Deploy</h6>
+                  <small class="text-muted">Vercel, Netlify, S3, etc.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plataformas -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-secondary text-white">
+            <h2 class="h5 mb-0">Plataformas de Deploy</h2>
+          </div>
+          <div class="card-body">
+            <table class="table table-sm mb-0">
+              <thead><tr><th>Plataforma</th><th>Característica</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Vercel</strong></td><td>Deploy automático via GitHub, serverless</td></tr>
+                <tr><td><strong>Netlify</strong></td><td>Similar ao Vercel, forms e funções</td></tr>
+                <tr><td><strong>GitHub Pages</strong></td><td>Grátis, ideal para projetos estáticos</td></tr>
+                <tr><td><strong>AWS S3 + CloudFront</strong></td><td>Escalável, CDN global</td></tr>
+                <tr><td><strong>Firebase Hosting</strong></td><td>Integrado com Firebase</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boas práticas -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-danger text-white">
+            <h2 class="h5 mb-0">Boas Práticas</h2>
+          </div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>Sempre teste o build localmente antes do deploy</li>
+              <li>Use <code>CI=true npm test</code> em pipelines CI/CD</li>
+              <li>Mantenha variáveis de ambiente em <code>.env</code> (não versionado)</li>
+              <li>Configure <code>sourcemap: false</code> em produção</li>
+              <li>Use <strong>code splitting</strong> para reduzir o bundle inicial</li>
+              <li>Faça <strong>lazy loading</strong> de rotas com <code>React.lazy()</code></li>
+              <li>Ative <strong>compression</strong> (Gzip/Brotli) no servidor</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

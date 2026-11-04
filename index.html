@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplos - Programação Web II (AWS Debian)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1a202c; padding: 40px 20px; }
+        .container { max-width: 960px; margin: 0 auto; }
+        h1 { color: #0a3d6b; font-size: 2em; margin-bottom: 4px; }
+        .sub { color: #4a5568; margin-bottom: 8px; font-size: 1.1em; }
+        .legenda { color: #718096; font-size: 0.9em; margin-bottom: 24px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+        .card {
+            background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e2e8f0;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .card h2 { color: #0a3d6b; font-size: 1.1em; margin-bottom: 8px; }
+        .card p { color: #4a5568; font-size: 0.9em; line-height: 1.5; margin-bottom: 12px; }
+        .card a {
+            display: inline-block; background: #0a3d6b; color: #fff; text-decoration: none;
+            padding: 8px 20px; border-radius: 6px; font-size: 0.85em; font-weight: 600;
+            transition: background 0.2s;
+        }
+        .card a:hover { background: #1a5280; }
+        .proj {
+            grid-column: 1 / -1; background: linear-gradient(135deg, #0a3d6b, #1a5280);
+            color: #fff; padding: 28px;
+        }
+        .proj h2, .proj p { color: #fff; }
+        .proj a { background: #fff; color: #0a3d6b; }
+        .proj a:hover { background: #e2e8f0; }
+        .novo { background: #f0fff4; border-color: #48bb78; }
+        .novo h2 { color: #276749; }
+        .novo .badge-novo {
+            display: inline-block; background: #48bb78; color: #fff; font-size: 0.65em;
+            padding: 2px 8px; border-radius: 10px; font-weight: 700; margin-left: 6px;
+            vertical-align: middle; text-transform: uppercase;
+        }
+        .secao-titulo {
+            font-size: 1.3em; color: #0a3d6b; margin: 32px 0 16px; padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0; font-weight: 700;
+        }
+        .info-bar {
+            background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px;
+            padding: 12px 16px; margin-bottom: 24px; font-size: 0.9em;
+        }
+        .info-bar strong { color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Programação Web II</h1>
+        <p class="sub">Exemplos práticos para AWS EC2 (Debian 13) &mdash; Prof. Eduardo</p>
+        <p class="legenda">Exemplos 01-11 originais &bull; Exemplos 12-19 (novos) cobrindo lacunas da apostila</p>
+
+        <div class="info-bar">
+            <strong>Ambiente:</strong> Servidor Apache no Debian 13 &bull;
+            Exemplos servidos via <code>/var/www/html/</code> &bull;
+            <a href="README.md" style="color:#92400e;">Ver instruções</a>
+        </div>
+
+        <div class="secao-titulo">Capítulo 1 — Frameworks Front-End</div>
+        <div class="grid">
+            <div class="card">
+                <h2>01 — Renderização Cliente</h2>
+                <p>Comparação SSR vs CSR. Exemplos com JavaScript puro e React via CDN.</p>
+                <a href="01_Renderizacao_Cliente/">Abrir &rarr;</a>
+            </div>
+            <div class="card">
+                <h2>02 — Reatividade</h2>
+                <p>DOM manual vs React state, comparando as duas abordagens.</p>
+                <a href="02_Reatividade/">Abrir &rarr;</a>
+            </div>
+            <div class="card">
+                <h2>03 — Componentes</h2>
+                <p>Componentes, props, composição e reutilização com React.</p>
+                <a href="03_Componentes/">Abrir &rarr;</a>
+            </div>
+            <div class="card">
+                <h2>04 — Condicional e Listas</h2>
+                <p>Renderização condicional (&&, ternário) e listas com map() e key.</p>
+                <a href="04_Condicional_Listas/">Abrir &rarr;</a>
+            </div>
+            <div class="card">
+                <h2>05 — Eventos e Formulários</h2>
+                <p>Eventos (clique, teclado, submit) e formulários controlados com validação.</p>
+                <a href="05_Eventos_Formularios/">Abrir &rarr;</a>
+            </div>
+            <div class="card">
+                <h2>06 — SPA e Rotas (hash)</h2>
+                <p>SPA com navegação via hash — JavaScript puro, sem React Router.</p>
+                <a href="06_SPA_Rotas/">Abrir &rarr;</a>
+            </div>
+            <div class="card">
+                <h2>07 — Estado</h2>
+                <p>useState, estado em objetos, elevação de estado e useEffect.</p>
+                <a href="07_Estado/">Abrir &rarr;</a>
+            </div>
+        </div>
+
+        <div class="secao-titulo">Capítulo 2 — Frameworks CSS</div>
+        <div class="grid">
+            <div class="card">
+                <h2>08 — Bootstrap</h2>
+                <p>Grid, cards, navbar, formulários, tabelas e modal.</p>
+                <a href="08_Bootstrap/">Abrir &rarr;</a>
+            </div>
+            <div class="card">
+                <h2>09 — Tailwind CSS</h2>
+                <p>Utilitários, grid responsivo, formulários, botões e alertas.</p>
+                <a href="09_Tailwind/">Abrir &rarr;</a>
+            </div>
+            <div class="card novo">
+                <h2>12 — Ícones<span class="badge-novo">Novo</span></h2>
+                <p>Bootstrap Icons, React Icons e Heroicons com Tailwind. Lista de contatos com ícones.</p>
+                <a href="12_Icones/">Abrir &rarr;</a>
+            </div>
+            <div class="card novo">
+                <h2>13 — Customização<span class="badge-novo">Novo</span></h2>
+                <p>Variáveis CSS, tema claro/escuro, Bootstrap e Tailwind customizados.</p>
+                <a href="13_Customizacao/">Abrir &rarr;</a>
+            </div>
+        </div>
+
+        <div class="secao-titulo">Capítulo 1 (cont.) — React Router</div>
+        <div class="grid">
+            <div class="card novo">
+                <h2>14 — React Router DOM<span class="badge-novo">Novo</span></h2>
+                <p>SPA com react-router-dom: BrowserRouter, Routes, Route, Link, NavLink, useParams e useNavigate.</p>
+                <a href="14_React_Router/">Abrir &rarr;</a>
+            </div>
+        </div>
+
+        <div class="secao-titulo">Capítulo 3 — Práticas de Desenvolvimento</div>
+        <div class="grid">
+            <div class="card">
+                <h2>10 — Testes (navegador)</h2>
+                <p>Suite de testes simulada no navegador para funções JavaScript.</p>
+                <a href="10_Testes/">Abrir &rarr;</a>
+            </div>
+            <div class="card novo">
+                <h2>15 — Testes com Jest<span class="badge-novo">Novo</span></h2>
+                <p>Projeto Node.js com testes unitários reais: Jest, describe, test, expect e matchers.</p>
+                <a href="15_Testes_Jest/">Abrir &rarr;</a>
+            </div>
+            <div class="card novo">
+                <h2>16 — Testes de Interface<span class="badge-novo">Novo</span></h2>
+                <p>React Testing Library + userEvent: renderização, clique, digitação e verificação de componentes.</p>
+                <a href="16_Testes_Interface/">Abrir &rarr;</a>
+            </div>
+            <div class="card novo">
+                <h2>17 — Build e Releases<span class="badge-novo">Novo</span></h2>
+                <p>Projeto Vite completo: build de produção, chunk vendor, minificação e deploy.</p>
+                <a href="17_Build_Releases/">Abrir &rarr;</a>
+            </div>
+            <div class="card novo">
+                <h2>18 — Git e Versionamento<span class="badge-novo">Novo</span></h2>
+                <p>Guia completo: init, add, commit, branch, merge, remote, pull, push e .gitignore.</p>
+                <a href="18_Git_Versionamento/">Abrir &rarr;</a>
+            </div>
+            <div class="card novo">
+                <h2>19 — CI/CD (GitHub Actions)<span class="badge-novo">Novo</span></h2>
+                <p>Pipeline completo: testes automáticos, build e deploy com GitHub Actions.</p>
+                <a href="19_CI_CD/">Abrir &rarr;</a>
+            </div>
+            <div class="card novo">
+                <h2>20 — Cypress (E2E)<span class="badge-novo">Novo</span></h2>
+                <p>Testes end-to-end com Cypress: login, lista de tarefas, cy.visit, cy.get, cy.contains e asserções visuais.</p>
+                <a href="20_Cypress/">Abrir &rarr;</a>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top: 16px;">
+            <div class="card proj">
+                <h2>11 — Projeto Integrador</h2>
+                <p>Aplicação completa: Lista de Tarefas com React + Bootstrap. CRUD completo, persistência localStorage e design responsivo.</p>
+                <a href="11_Projeto_Integrador/">Ver Projeto &rarr;</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Git e Versionamento - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    pre { tab-size: 2; }
+    .cmd::before { content: '$ '; color: #6c757d; }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <h1 class="text-center mb-2">Git — Controle de Versão</h1>
+    <p class="text-center text-muted mb-4">
+      Comandos fundamentais e fluxo de trabalho com branches
+    </p>
+
+    <div class="row g-4">
+      <!-- Configuração inicial -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">1. Configuração Inicial</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded"><code class="cmd">git config --global user.name "Seu Nome"
+git config --global user.email "seu@email.com"
+git config --global init.defaultBranch main</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Criar repositório -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-success text-white">
+            <h2 class="h5 mb-0">2. Criar / Clonar Repositório</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded"><code class="cmd"># Criar novo repositório local
+git init
+
+# Clonar repositório remoto
+git clone https://github.com/usuario/projeto.git</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ciclo de alterações -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-warning text-dark">
+            <h2 class="h5 mb-0">3. Ciclo de Alterações</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded"><code class="cmd"># Verificar status
+git status
+
+# Adicionar à staging area
+git add arquivo.js
+git add .              # Todos os arquivos
+
+# Criar commit
+git commit -m "Mensagem descritiva"
+
+# Ver histórico
+git log --oneline --graph</code></pre>
+            <div class="alert alert-info mt-3 mb-0 py-2">
+              <strong>Fluxo:</strong> Working Directory → <code>git add</code> → Staging Area → <code>git commit</code> → Repositório
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branches -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-info text-white">
+            <h2 class="h5 mb-0">4. Trabalho com Branches</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded"><code class="cmd"># Listar branches
+git branch
+
+# Criar nova branch
+git branch feature-login
+
+# Mudar para branch
+git checkout feature-login
+
+# Criar e mudar (atalho)
+git checkout -b feature-login
+
+# Mesclar na branch atual
+git checkout main
+git merge feature-login
+
+# Deletar branch
+git branch -d feature-login</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repositório remoto -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-secondary text-white">
+            <h2 class="h5 mb-0">5. Repositório Remoto</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded"><code class="cmd"># Adicionar remote
+git remote add origin https://github.com/usuario/projeto.git
+
+# Enviar alterações
+git push -u origin main
+git push origin feature-login
+
+# Baixar alterações
+git pull origin main
+
+# Buscar sem mesclar
+git fetch origin</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- .gitignore e boas práticas -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-danger text-white">
+            <h2 class="h5 mb-0">6. .gitignore e Boas Práticas</h2>
+          </div>
+          <div class="card-body">
+            <p>Arquivo <code>.gitignore</code> — impede que arquivos desnecessários sejam versionados:</p>
+            <pre class="bg-dark text-light p-3 rounded"><code>node_modules/
+dist/
+.env
+*.log
+.DS_Store
+.vscode/</code></pre>
+            <hr />
+            <ul class="mb-0">
+              <li>Commits pequenos e atômicos (uma mudança lógica por commit)</li>
+              <li>Mensagens descritivas no presente imperativo ("Adiciona...", "Corrige...")</li>
+              <li>Nunca commitar senhas, tokens ou <code>.env</code></li>
+              <li>Sempre puxar (<code>git pull</code>) antes de começar a trabalhar</li>
+              <li>Usar branches para cada funcionalidade</li>
+              <li>Fazer code review via Pull Requests</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fluxo Git Flow simplificado -->
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-dark text-white">
+            <h2 class="h5 mb-0">Fluxo de Trabalho Completo (Git Flow Simplificado)</h2>
+          </div>
+          <div class="card-body">
+            <pre class="bg-dark text-light p-3 rounded"><code class="cmd"># 1. Criar branch para nova funcionalidade
+git checkout -b feature/minha-funcionalidade
+
+# 2. Desenvolver e commitar
+git add .
+git commit -m "Implementa nova funcionalidade"
+
+# 3. Voltar para main e atualizar
+git checkout main
+git pull origin main
+
+# 4. Integrar a funcionalidade
+git merge feature/minha-funcionalidade
+
+# 5. Enviar para o repositório remoto
+git push origin main
+
+# 6. (Opcional) Deletar branch da funcionalidade
+git branch -d feature/minha-funcionalidade</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

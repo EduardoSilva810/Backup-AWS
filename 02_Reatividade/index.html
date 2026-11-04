@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reatividade - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container py-5">
+    <h1 class="text-3xl font-bold text-center mb-2">Reatividade</h1>
+    <p class="text-center text-muted mb-5">Comparação entre manipulação manual do DOM e React</p>
+
+    <!-- Exemplo 1: Sem reatividade -->
+    <div class="card mb-5 shadow-sm">
+      <div class="card-header bg-danger text-white">
+        <h2 class="h5 mb-0">Exemplo 1: Sem Reatividade (DOM Manual)</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">O contador abaixo é atualizado manualmente com <code>innerHTML</code>. O DOM inteiro precisa ser manipulado.</p>
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-danger" onclick="decrementarManual()">-</button>
+          <span id="contadorManual" class="text-2xl fw-bold">0</span>
+          <button class="btn btn-outline-success" onclick="incrementarManual()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exemplo 2: Com reatividade -->
+    <div class="card mb-5 shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h2 class="h5 mb-0">Exemplo 2: Com Reatividade (React)</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">O React atualiza automaticamente a UI quando o estado muda, sem manipulação manual do DOM.</p>
+        <div id="react-root"></div>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>Conclusão:</strong> No React, chamamos <code>setState</code> e a UI é re-renderizada automaticamente.
+      No DOM manual, precisamos buscar elementos e atualizar manualmente com <code>innerHTML</code>.
+    </div>
+  </div>
+
+  <script>
+    let contador = 0;
+    function incrementarManual() {
+      contador++;
+      document.getElementById('contadorManual').innerHTML = contador;
+    }
+    function decrementarManual() {
+      contador--;
+      document.getElementById('contadorManual').innerHTML = contador;
+    }
+  </script>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState } = React;
+    function ContadorReativo() {
+      const [count, setCount] = useState(0);
+      return (
+        <div className="d-flex align-items-center gap-3">
+          <button className="btn btn-outline-danger" onClick={() => setCount(c => c - 1)}>-</button>
+          <span className="text-2xl fw-bold">{count}</span>
+          <button className="btn btn-outline-success" onClick={() => setCount(c => c + 1)}>+</button>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('react-root')).render(<ContadorReativo />);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

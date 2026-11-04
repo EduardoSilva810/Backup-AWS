@@ -1,0 +1,30 @@
+PROJETO CORRIGIDO - TAILWIND CSS + JAVASCRIPT
+
+COMO USAR
+1. Extraia todo o conteudo do ZIP.
+2. Abra index.html no navegador.
+3. Entre com:
+   E-mail: admin@admin.com
+   Senha: 123456
+
+Tambem e possivel cadastrar outro usuario na aba Cadastro.
+
+CORRECAO PRINCIPAL
+A autenticacao, o cadastro e o CRUD agora funcionam em uma unica pagina HTML.
+Isso evita problemas ao trocar entre diferentes arquivos locais e origens file://.
+
+RECURSOS
+- Login e logout
+- Usuario administrador criado automaticamente
+- Cadastro de novos usuarios
+- CRUD de alunos
+- Pesquisa
+- Edicao e exclusao
+- Validacao de RA duplicado
+- Dados persistidos em localStorage
+- Sessao persistida em sessionStorage
+
+ATENCAO
+Este e um exemplo didatico. As senhas ficam armazenadas no navegador sem criptografia.
+Nao use esta abordagem em producao.
+O Tailwind CSS e carregado por CDN e exige internet para aplicar o estilo.

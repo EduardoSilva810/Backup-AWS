@@ -1,0 +1,14 @@
+/meu_projeto1/
+/central.ai/
+# Credenciais
+.env
+.env.*
+*.txt
+central-ia/chave_google.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/

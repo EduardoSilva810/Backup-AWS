@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciamento de Estado - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container py-5">
+    <h1 class="text-3xl font-bold text-center mb-5">Gerenciamento de Estado</h1>
+
+    <!-- Exemplo 1 -->
+    <div class="card mb-5 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h2 class="h5 mb-0">Exemplo 1: useState com Objeto (Formulário)</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Estado gerenciado como um único objeto com spread operator.</p>
+        <div id="ex1-root"></div>
+      </div>
+    </div>
+
+    <!-- Exemplo 2 -->
+    <div class="card mb-5 shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h2 class="h5 mb-0">Exemplo 2: Elevação de Estado</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Dois componentes compartilham o mesmo estado elevado ao pai.</p>
+        <div id="ex2-root"></div>
+      </div>
+    </div>
+
+    <!-- Exemplo 3 -->
+    <div class="card mb-5 shadow-sm">
+      <div class="card-header bg-warning text-dark">
+        <h2 class="h5 mb-0">Exemplo 3: useEffect — Simulação de busca de dados</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Simula uma requisição a uma API com useEffect e setTimeout.</p>
+        <div id="ex3-root"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Exemplo 1
+    function FormularioEstado() {
+      const [form, setForm] = useState({ nome: '', email: '', mensagem: '' });
+
+      function handleChange(e) {
+        setForm({ ...form, [e.target.name]: e.target.value });
+      }
+
+      return (
+        <div>
+          <div className="mb-3">
+            <label className="form-label">Nome</label>
+            <input className="form-control" name="nome" value={form.nome} onChange={handleChange} />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input className="form-control" name="email" value={form.email} onChange={handleChange} />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Mensagem</label>
+            <textarea className="form-control" name="mensagem" value={form.mensagem} onChange={handleChange} />
+          </div>
+          <div className="alert alert-secondary">
+            <strong>Estado atual:</strong><br />
+            {JSON.stringify(form, null, 2)}
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('ex1-root')).render(<FormularioEstado />);
+
+    // Exemplo 2
+    function InputNome({ nome, setNome }) {
+      return (
+        <div className="mb-2">
+          <label className="form-label">Digite seu nome:</label>
+          <input className="form-control" value={nome} onChange={e => setNome(e.target.value)} />
+        </div>
+      );
+    }
+    function SaudacaoNome({ nome }) {
+      return <div className="alert alert-info">Olá, <strong>{nome || 'visitante'}</strong>!</div>;
+    }
+    function PaiElevacao() {
+      const [nome, setNome] = useState('');
+      return (
+        <div>
+          <InputNome nome={nome} setNome={setNome} />
+          <SaudacaoNome nome={nome} />
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('ex2-root')).render(<PaiElevacao />);
+
+    // Exemplo 3
+    function BuscaSimulada() {
+      const [dados, setDados] = useState(null);
+      const [carregando, setCarregando] = useState(true);
+      const [erro, setErro] = useState(null);
+
+      useEffect(() => {
+        setCarregando(true);
+        setErro(null);
+        const timer = setTimeout(() => {
+          const sucesso = Math.random() > 0.2;
+          if (sucesso) {
+            setDados({ usuario: 'João Silva', idade: 28, cidade: 'São Paulo' });
+          } else {
+            setErro('Falha ao carregar os dados.');
+          }
+          setCarregando(false);
+        }, 2000);
+        return () => clearTimeout(timer);
+      }, []);
+
+      if (carregando) return <div className="text-center"><div className="spinner-border text-primary" role="status"></div><p className="mt-2">Carregando...</p></div>;
+      if (erro) return <div className="alert alert-danger">{erro} <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => window.location.reload()}>Tentar novamente</button></div>;
+      return (
+        <div className="alert alert-success">
+          <h5>Dados carregados:</h5>
+          <p><strong>Usuário:</strong> {dados.usuario}</p>
+          <p><strong>Idade:</strong> {dados.idade}</p>
+          <p><strong>Cidade:</strong> {dados.cidade}</p>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('ex3-root')).render(<BuscaSimulada />);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

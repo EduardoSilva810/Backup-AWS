@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eventos e Formulários - Programação Web II</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container py-5">
+    <h1 class="text-3xl font-bold text-center mb-5">Eventos e Formulários</h1>
+
+    <!-- Exemplo 1 -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h2 class="h5 mb-0">Exemplo 1: onClick — Contador</h2>
+      </div>
+      <div class="card-body">
+        <div id="ex1-root"></div>
+      </div>
+    </div>
+
+    <!-- Exemplo 2 -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h2 class="h5 mb-0">Exemplo 2: onChange — Input reativo</h2>
+      </div>
+      <div class="card-body">
+        <div id="ex2-root"></div>
+      </div>
+    </div>
+
+    <!-- Exemplo 3 -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-warning text-dark">
+        <h2 class="h5 mb-0">Exemplo 3: Formulário completo com validação</h2>
+      </div>
+      <div class="card-body">
+        <div id="ex3-root"></div>
+      </div>
+    </div>
+
+    <!-- Exemplo 4 -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h2 class="h5 mb-0">Exemplo 4: onKeyDown — Enter para buscar</h2>
+      </div>
+      <div class="card-body">
+        <div id="ex4-root"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Exemplo 1
+    function Contador() {
+      const [count, setCount] = useState(0);
+      return (
+        <div className="d-flex align-items-center gap-3">
+          <button className="btn btn-danger" onClick={() => setCount(c - 1)}>-</button>
+          <span className="fs-3 fw-bold">{count}</span>
+          <button className="btn btn-success" onClick={() => setCount(c + 1)}>+</button>
+          <button className="btn btn-outline-secondary" onClick={() => setCount(0)}>Reset</button>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('ex1-root')).render(<Contador />);
+
+    // Exemplo 2
+    function InputReativo() {
+      const [texto, setTexto] = useState('');
+      return (
+        <div>
+          <input className="form-control mb-2" placeholder="Digite algo..."
+            value={texto} onChange={e => setTexto(e.target.value)} />
+          <p className={texto ? 'text-success' : 'text-muted'}>
+            Você digitou: <strong>{texto || '(aguardando...)'}</strong>
+          </p>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('ex2-root')).render(<InputReativo />);
+
+    // Exemplo 3
+    function FormCompleto() {
+      const [form, setForm] = useState({ nome: '', email: '', idade: '' });
+      const [erros, setErros] = useState({});
+      const [enviado, setEnviado] = useState(false);
+
+      function handleChange(e) {
+        setForm({ ...form, [e.target.name]: e.target.value });
+      }
+
+      function validar() {
+        const errosTemp = {};
+        if (!form.nome.trim()) errosTemp.nome = 'Nome é obrigatório.';
+        if (!form.email.includes('@')) errosTemp.email = 'Email inválido.';
+        if (!form.idade || Number(form.idade) < 18) errosTemp.idade = 'Deve ter 18+ anos.';
+        return errosTemp;
+      }
+
+      function handleSubmit(e) {
+        e.preventDefault();
+        const errosTemp = validar();
+        setErros(errosTemp);
+        if (Object.keys(errosTemp).length === 0) {
+          setEnviado(true);
+        }
+      }
+
+      if (enviado) {
+        return (
+          <div className="alert alert-success">
+            <h4>Formulário enviado com sucesso!</h4>
+            <p><strong>Nome:</strong> {form.nome}</p>
+            <p><strong>Email:</strong> {form.email}</p>
+            <p><strong>Idade:</strong> {form.idade}</p>
+            <button className="btn btn-outline-secondary" onClick={() => { setEnviado(false); setForm({ nome: '', email: '', idade: '' }); setErros({}); }}>Voltar</button>
+          </div>
+        );
+      }
+
+      return (
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Nome</label>
+            <input className={`form-control ${erros.nome ? 'is-invalid' : ''}`} name="nome" value={form.nome} onChange={handleChange} />
+            {erros.nome && <div className="invalid-feedback">{erros.nome}</div>}
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input className={`form-control ${erros.email ? 'is-invalid' : ''}`} name="email" value={form.email} onChange={handleChange} />
+            {erros.email && <div className="invalid-feedback">{erros.email}</div>}
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Idade</label>
+            <input className={`form-control ${erros.idade ? 'is-invalid' : ''}`} name="idade" type="number" value={form.idade} onChange={handleChange} />
+            {erros.idade && <div className="invalid-feedback">{erros.idade}</div>}
+          </div>
+          <button type="submit" className="btn btn-primary">Enviar</button>
+        </form>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('ex3-root')).render(<FormCompleto />);
+
+    // Exemplo 4
+    function BuscaEnter() {
+      const [termo, setTermo] = useState('');
+      const [resultado, setResultado] = useState('');
+
+      function handleKeyDown(e) {
+        if (e.key === 'Enter') {
+          setResultado(`Você buscou por: "${termo}"`);
+        }
+      }
+
+      return (
+        <div>
+          <input className="form-control mb-2" placeholder="Digite e pressione Enter para buscar..."
+            value={termo} onChange={e => setTermo(e.target.value)} onKeyDown={handleKeyDown} />
+          {resultado && <div className="alert alert-info">{resultado}</div>}
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('ex4-root')).render(<BuscaEnter />);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
