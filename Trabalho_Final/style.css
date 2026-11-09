@@ -257,3 +257,26 @@ footer{color:#83778f}
  .ambient-two{display:none}
 }
 @media(prefers-reduced-motion:reduce){.nav-link{transition:none}}
+
+.calendar-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.calendar-layout .calendar-panel {
+    margin: 0;
+    min-width: 0;
+}
+
+.calendar-agenda {
+    min-width: 0;
+    padding: 22px;
+}
+
+@media (max-width: 800px) {
+    .calendar-layout {
+        grid-template-columns: 1fr;
+    }
+}

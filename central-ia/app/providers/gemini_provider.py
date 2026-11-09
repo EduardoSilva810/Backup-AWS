@@ -1,33 +1,34 @@
-
 import os
+
 from google import genai
 from dotenv import load_dotenv
 
+from app.providers.base_provider import BaseAIProvider
+
+
 # Carrega as configurações do arquivo .env
-load_dotenv()
+load_dotenv("/var/www/html/central-ia/.env")
 
 
-class GeminiProvider:
+class GeminiProvider(BaseAIProvider):
+
+    provider_name = "Google Gemini"
+    model = "gemini-3.8-flash"
 
     def __init__(self):
-        # Recupera a chave armazenada no servidor
+
         api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
             raise ValueError("Chave da API Gemini não configurada.")
 
-        # Inicializa o cliente do Google
         self.client = genai.Client(api_key=api_key)
 
-        # Modelo utilizado
-        self.model = "gemini-flash-latest"
+    def generate_response(self, prompt: str) -> str:
 
-    def generate_response(self, prompt: str):
-        # Envia a pergunta para o Gemini
         response = self.client.models.generate_content(
             model=self.model,
             contents=prompt
         )
 
-        # Retorna somente o texto gerado
         return response.text
