@@ -3,7 +3,6 @@
 # Credenciais
 .env
 .env.*
-*.txt
 central-ia/chave_google.txt
 
 # Python
